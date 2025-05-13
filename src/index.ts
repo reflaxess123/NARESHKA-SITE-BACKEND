@@ -23,6 +23,8 @@ const redisStore = new RedisStore({
 
 const app = express();
 
+app.set("trust proxy", 1); // Доверяем первому прокси (Nginx)
+
 const corsOptions = {
   origin: ["https://nareshka.site", "http://localhost:5173"],
   credentials: true,
@@ -44,6 +46,8 @@ app.use(
       maxAge: 1000 * 60 * 60 * 24, // 1 day
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       secure: process.env.NODE_ENV === "production", // true в продакшене, false в разработке
+      domain:
+        process.env.NODE_ENV === "production" ? ".nareshka.site" : undefined, // Домен для cookie
     },
   })
 );
