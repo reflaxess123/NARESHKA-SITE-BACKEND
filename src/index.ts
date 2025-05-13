@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import RedisStore from "connect-redis";
+import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import session from "express-session";
@@ -21,6 +22,7 @@ const redisStore = new RedisStore({
 });
 
 const app = express();
+app.use(cors());
 const port = process.env.PORT || 3000;
 
 app.use(
