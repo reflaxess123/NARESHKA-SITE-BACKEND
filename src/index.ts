@@ -1,11 +1,11 @@
-import express from "express";
-import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
-import { createClient } from "redis";
-import session from "express-session";
 import RedisStore from "connect-redis";
-import authRoutes from "./routes/auth";
+import dotenv from "dotenv";
+import express from "express";
+import session from "express-session";
+import { createClient } from "redis";
 import { isAuthenticated } from "./middleware/authMiddleware";
+import authRoutes from "./routes/auth";
 
 dotenv.config();
 
@@ -30,7 +30,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === "production", // В продакшене использовать secure cookies (HTTPS)
+      secure: false, // В продакшене использовать secure cookies (HTTPS)
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24, // 1 day
     },
