@@ -43,6 +43,7 @@ app.use(
       secure: false, // В продакшене использовать secure cookies (HTTPS)
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24, // 1 day
+      sameSite: "lax",
     },
   })
 );
