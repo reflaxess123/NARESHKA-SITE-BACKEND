@@ -47,6 +47,8 @@ app.use(
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       secure: process.env.NODE_ENV === "production",
       path: "/",
+      domain:
+        process.env.NODE_ENV === "production" ? ".nareshka.site" : undefined,
     },
   })
 );

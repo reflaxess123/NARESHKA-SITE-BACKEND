@@ -96,6 +96,8 @@ router.post("/logout", (req, res) => {
     secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     path: "/",
+    domain:
+      process.env.NODE_ENV === "production" ? ".nareshka.site" : undefined,
   };
 
   req.session.destroy((err) => {
