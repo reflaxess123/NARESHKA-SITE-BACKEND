@@ -1,6 +1,6 @@
-import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
+import { Router } from "express";
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -90,6 +90,16 @@ router.post("/login", async (req, res) => {
 
 // Роут для выхода
 router.post("/logout", (req, res) => {
+  const cookieName = "connect.sid"; // Имя cookie по умолчанию для express-session
+  const cookieOptions: import("express-serve-static-core").CookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    domain:
+      process.env.NODE_ENV === "production" ? ".nareshka.site" : undefined,
+    path: "/", // Важно указать путь
+  };
+
   req.session.destroy((err) => {
     if (err) {
       console.error("Logout error:", err);
@@ -97,7 +107,7 @@ router.post("/logout", (req, res) => {
         .status(500)
         .json({ message: "Could not log out, please try again" });
     }
-    res.clearCookie("connect.sid"); // Имя cookie по умолчанию для express-session
+    res.clearCookie(cookieName, cookieOptions);
     res.status(200).json({ message: "Logout successful" });
   });
 });
