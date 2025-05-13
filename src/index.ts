@@ -33,7 +33,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 4000;
 
 app.use(
   session({
@@ -46,8 +46,7 @@ app.use(
       maxAge: 1000 * 60 * 60 * 24, // 1 day
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       secure: process.env.NODE_ENV === "production",
-      domain:
-        process.env.NODE_ENV === "production" ? ".nareshka.site" : undefined,
+      path: "/",
     },
   })
 );
