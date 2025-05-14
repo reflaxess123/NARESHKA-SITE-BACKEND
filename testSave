@@ -1,0 +1,977 @@
+[
+    {
+        "pathTitles": [
+            "Очень простые (базовые операции и манипуляции)"
+        ],
+        "blockTitle": "1. sum",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Напишите функцию sum, которая принимает массив чисел, в том числе содержащий вложенные массивы, и возвращает сумму всех чисел в массиве. Для решения задачи используйте рекурсию для обработки вложенных массивов.\\n",
+        "codeBlocks": [
+            {
+                "content": "function sum(arr) {  \n    return arr.reduce((total, item) => {  \n        if (Array.isArray(item)) {  \n            return total + sum(item); // рекурсивно суммируем вложенные массивы  \n        }  \n        return total + item; // добавляем число к общей сумме  \n    }, 0);  \n}  \n  \n// Пример использования  \nconsole.log(sum([1, 1, 1, [2, 1], [1, [1, [1], 3]]])); // Вернет 12",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Очень простые (базовые операции и манипуляции)"
+        ],
+        "blockTitle": "2. findMinMax",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Реализуйте функцию, которая принимает массив чисел и возвращает объект, содержащий минимальное и максимальное значение из этого массива.\\nИнициализируйте переменные min и max первым элементом массива.Пройдите по массиву начиная со второго элемента и сравните каждый элемент с текущими значениями min и max.Если текущий элемент меньше min, обновите значение min.Если текущий элемент больше max, обновите значение max.Верните объект с ключами min и max, содержащими найденные значения.\\n",
+        "codeBlocks": [
+            {
+                "content": "function (arr) {\n    let min = arr[0];\n    let max = arr[0];\n\n    for (let i = 1; i < arr.length; i++) {\n        if (arr[i] < min) {\n            min = arr[i];\n        }\n        if (arr[i] > max) {\n            max = arr[i];\n        }\n    }\n\n    return { min, max };\n}",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Очень простые (базовые операции и манипуляции)"
+        ],
+        "blockTitle": "3. removeEvenIndexedElements",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Реализуйте функцию removeEvenIndexedElements, которая принимает массив и удаляет из него элементы, находящиеся на чётных индексах. Итоговый массив должен содержать только элементы, расположенные на нечётных позициях (индексация начинается с нуля).\\nОбходите массив в обратном порядке, чтобы избежать проблем с изменением индексов при удалении элементов.Для каждого элемента проверяйте, является ли его индекс чётным.Если индекс чётный, удаляйте элемент из массива с помощью метода splice.Возвращайте модифицированный массив.Проверьте работу функции на тестовом массиве.\\n",
+        "codeBlocks": [
+            {
+                "content": "const removeEvenIndexedElements = (arr) => {  \n    for (let i = arr.length - 1; i >= 0; i--) {  \n        if (i % 2 === 0) {  \n            arr.splice(i, 1);  \n        }  \n    }    \n    return arr;  \n};  \n  \nconst data = [\"A\", \"B\", \"C\", \"D\", \"E\", \"F\", \"G\", \"H\", \"I\", \"J\"];  \n  \nconsole.log(removeEvenIndexedElements(data)); // [\"B\", \"D\", \"F\", \"H\", \"J\"]",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Очень простые (базовые операции и манипуляции)"
+        ],
+        "blockTitle": "4. Concatenation of Array",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Реализуйте функцию, которая принимает массив чисел и возвращает новый массив, являющийся конкатенацией исходного массива с самим собой. Задача предлагает несколько способов решения:\\nС использованием метода concat.С использованием оператора распространения (spread).С использованием метода push с двумя проходами по исходному массиву.С использованием цикла for, при котором массив создается с заранее определённой длиной.\\nПример:Для входного массива [1, 2, 1] результат должен быть [1, 2, 1, 1, 2, 1].\\n",
+        "codeBlocks": [
+            {
+                "content": "// concat  \nfunction getConcatenation(nums) {  \n    return nums.concat(nums);  \n}  \n  \n// spread  \nfunction getConcatenation1(nums) {  \n    return [...nums, ...nums];  \n}  \n  \n// push  \nfunction getConcatenation2(nums) {  \n    const ans = [];  \n    nums.forEach(num => ans.push(num));  // Первый проход  \n    nums.forEach(num => ans.push(num));  // Второй проход  \n    return ans;  \n}  \n  \n// for  \nfunction getConcatenation3(nums) {  \n    const len = nums.length;  \n    const ans = new Array(2 * len);  \n  \n    for (let i = 0; i < len; i++) {  \n        ans[i] = nums[i];  \n        ans[i + len] = nums[i];  \n    }  \n  \n    return ans;  \n}  \n  \nconsole.log(getConcatenation([1, 2, 1]));",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Очень простые (базовые операции и манипуляции)"
+        ],
+        "blockTitle": "5. Contains Duplicate",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Реализуйте функцию, которая определяет, содержит ли массив дубликаты. Решение должно вернуть true, если в массиве встречается хотя бы один повторяющийся элемент, и false в противном случае. Для этого предложены несколько подходов:\\nС использованием объекта Map и итерации с for...of:Если элемент уже есть в Map, возвращается true.Иначе элемент добавляется в Map.С использованием обычного объекта для хранения элементов:Если элемент уже присутствует в объекте, возвращается true.Если элемент отсутствует, он добавляется в объект.С использованием коллекции Set в одну строку:Создается Set из массива. Если размер Set отличается от длины массива, значит, имеются дубликаты.\\n",
+        "codeBlocks": [
+            {
+                "content": "// map + for of  \nconst containsDuplicate = nums => {  \n    const map = new Map();  \n  \n    for (let num of nums) {  \n        if (map.has(num)) return true;  \n        map.set(num, 1);  \n    }  \n    return false;  \n};  \n  \n// obj + for of  \nconst containsDuplicate2 = nums => {  \n    let obj = {};  \n    for (let num of nums) {  \n        if (obj[num]) return true;  \n        obj[num] = true;  \n    }  \n    return false;  \n};  \n  \n// set one-liner  \nconst containsDuplicate1 = nums => new Set(nums).size !== nums.length;  \n  \nlet nums = [1,2,3,4,2]  \n  \n// console.log(containsDuplicate2(nums))",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Очень простые (базовые операции и манипуляции)"
+        ],
+        "blockTitle": "6. Chunk Array",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Реализуйте функцию, которая делит массив на подмассивы (чанки) заданного размера. Если элементы массива не могут быть равномерно распределены по чанкам, последний чанк может содержать меньше элементов, чем задано. Задача должна быть решена двумя способами:\\nС использованием цикла for:Проходите по массиву с шагом, равным размеру чанка.Используйте метод slice для создания подмассива и добавляйте его в результирующий массив.С использованием метода reduce:Итерируйте по массиву, добавляя элементы в последний чанк, если он не достиг нужного размера.Если последний чанк заполнен или отсутствует, создавайте новый чанк.\\n",
+        "codeBlocks": [
+            {
+                "content": "// for  \nconst chunk = (arr, size) => {  \n    const result = [];  \n    for (let i = 0; i < arr.length; i += size) {  \n        result.push(arr.slice(i, i + size));  \n    }  \n    return result;  \n};  \n  \n// reduce  \nconst chunk2 = (arr, size) => {  \n    return arr.reduce((chunkedArray, element) => {  \n        const lastChunk = chunkedArray[chunkedArray.length - 1];  \n        if (!lastChunk || lastChunk.length === size) {  \n            chunkedArray.push([element]);  \n        } else {  \n            lastChunk.push(element);  \n        }  \n        return chunkedArray;  \n    }, []);  \n};  \n  \nconst arr = [1, 2, 3, 4, 5, 6, 7];  \nconst size = 1;  \n  \nconsole.log(chunk(arr, size));  \nconsole.log(chunk2(arr, size));",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Очень простые (базовые операции и манипуляции)"
+        ],
+        "blockTitle": "7. getRandom",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Реализуйте функцию, которая создает массив длины n, состоящий из уникальных случайных чисел. Для этого необходимо:\\nНаписать функцию getRand, генерирующую случайное число с одним знаком после запятой.Использовать объект Set для хранения уникальных значений.Добавлять в Set новые случайные числа до тех пор, пока его размер не станет равен n.Преобразовать Set в массив и вернуть его.Вывести результат работы функции для проверки.\\n",
+        "codeBlocks": [
+            {
+                "content": "// создать массив длины n, состоящий из уникальных случайных элементов  \nconst getRand = () => Math.random().toFixed(1);  \n  \nfunction getUniqRandN(n) {  \n    const uniqueNumbers = new Set();  \n  \n    while (uniqueNumbers.size < n) {  \n        uniqueNumbers.add(getRand());  \n    }  \n  \n    return Array.from(uniqueNumbers);  \n}  \n  \nconsole.log(getUniqRandN(5));",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Очень простые (базовые операции и манипуляции)"
+        ],
+        "blockTitle": "8. maxElementIndex",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Реализуйте функцию findMaxIndex, которая принимает массив чисел и возвращает индекс максимального элемента. Если массив пуст, функция должна вернуть -1. Для реализации:\\nЕсли массив пуст, сразу верните -1.Инициализируйте переменные для хранения максимального значения и его индекса, используя первый элемент массива.Пройдите по массиву начиная со второго элемента:Если текущий элемент больше текущего максимума, обновите значение максимума и запомните его индекс.Верните индекс максимального элемента.\\n",
+        "codeBlocks": [
+            {
+                "content": "function findMaxIndex(arr) {  \n    // Если массив пуст, возвращаем -1  \n    if (arr.length === 0) return -1;  \n  \n    // Инициализация переменных для хранения максимального значения и его индекса  \n    let maxIndex = 0;  \n    let maxValue = arr[0];  \n  \n    // Проход по массиву, начиная со второго элемента  \n    for (let i = 1; i < arr.length; i++) {  \n        if (arr[i] > maxValue) {  \n            maxValue = arr[i];  \n            maxIndex = i;  \n        }  \n    }  \n    // Возврат индекса максимального элемента  \n    return maxIndex;  \n}  \n  \nconst array1 = [1, 3, 7, 2, 5];  \nconst array2 = [10, 20, 30, 40, 50];  \nconst emptyArray = [];  \n  \nconsole.log(findMaxIndex(array1)); // 2, так как 7 — максимальный элемент  \nconsole.log(findMaxIndex(array2)); // 4, так как 50 — максимальный элемент  \nconsole.log(findMaxIndex(emptyArray)); // -1, так как массив пуст",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Очень простые (базовые операции и манипуляции)"
+        ],
+        "blockTitle": "9. between",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Реализуйте функцию between, которая принимает два числа: min и max, и возвращает другую функцию. Возвращаемая функция принимает значение и проверяет, находится ли оно строго между min и max (то есть больше min и меньше max). Это позволяет использовать функцию between в качестве фильтра для массивов, чтобы выбрать значения, удовлетворяющие заданному диапазону.\\n",
+        "codeBlocks": [
+            {
+                "content": "function between(min, max) {\n    return function (value) {\n        return value > min && value < max;\n    };\n}\n\nconst arr = [1, 2, 3, 4, 5, 6];\n\n// Используем between(3, 6) как фильтр\nconst range = arr.filter(between(3, 6));\n\nconsole.log(range); // [4, 5]",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Очень простые (базовые операции и манипуляции)"
+        ],
+        "blockTitle": "10. remove duplicates",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан массив объектов, в котором могут встречаться дубликаты (объекты с одинаковыми значениями). Необходимо удалить повторяющиеся объекты, сохранив только первый экземпляр каждого уникального объекта. При этом можно использовать сериализацию объекта в строку (например, через JSON.stringify) для сравнения.\\n",
+        "codeBlocks": [
+            {
+                "content": "const arr = [{ a: 1 }, { b: 2 }, { a: 1 }, { d: 4 }];  \n  \n// Преобразуем каждый объект в строку и создаем Map, чтобы сохранить только уникальные объекты  \nconst uniqueArr = Array.from(  \n    new Map(arr.map(item => [JSON.stringify(item), item])).values()  \n);  \n  \nconsole.log(uniqueArr); // [{ a: 1 }, { b: 2 }, { d: 4 }]",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Очень простые (базовые операции и манипуляции)"
+        ],
+        "blockTitle": "11. findUnique",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Напишите несколько функций, которые принимают массив чисел и возвращают новый массив, содержащий только уникальные элементы (элементы, встречающиеся ровно один раз). Решение должно быть реализовано различными способами:\\nС использованием Map:Создаем карту для подсчета вхождений каждого элемента.Фильтруем исходный массив, оставляя только элементы, встречающиеся один раз.Добавление метода в прототип Array:Аналогичное решение, но реализованное как метод для массива.С использованием метода filter и indexOf:Оставляем элемент, если его первое вхождение совпадает с последним (то есть, он уникален).С использованием reduce:Формируем объект-счетчик, затем фильтруем массив по значению счетчика.С использованием forEach:Используем два набора (Set) для хранения уникальных элементов и дубликатов, а затем фильтруем исходный массив по найденным уникальным значениям.\\n",
+        "codeBlocks": [
+            {
+                "content": "const arr = [10, 5, 10, 0, 10, 6, 6, 7, 2, 9, 9];  \n  \n// 1. С использованием Map  \nconst findUniqueMap = (array) => {  \n    const countMap = new Map();  \n  \n    array.forEach(item => {  \n        countMap.set(item, (countMap.get(item) || 0) + 1);  \n    });  \n  \n    return array.filter(item => countMap.get(item) === 1);  \n};  \n  \nconsole.log(findUniqueMap(arr));  \n  \n// 2. Добавление метода в прототип Array  \nArray.prototype.findUniqueMap = function() {  \n    const countMap = new Map();  \n  \n    this.forEach(item => {  \n        countMap.set(item, (countMap.get(item) || 0) + 1);  \n    });  \n  \n    return this.filter(item => countMap.get(item) === 1);  \n};  \n  \nconsole.log(arr.findUniqueMap());  \n  \n// 3. С использованием filter + indexOf  \nconst findUniqueFilter = (array) => {  \n    return array.filter(item => array.indexOf(item) === array.lastIndexOf(item));  \n};  \n  \nconsole.log(findUniqueFilter(arr));  \n  \n// 4. С использованием reduce  \nconst findUniqueReduce = (array) => {  \n    const frequencyMap = array.reduce((acc, item) => {  \n        acc[item] = (acc[item] || 0) + 1;  \n        return acc;  \n    }, {});  \n  \n    return array.filter(item => frequencyMap[item] === 1);  \n};  \n  \nconsole.log(findUniqueReduce(arr));  \n  \n// 5. С использованием forEach  \nconst findUniqueForEach = (array) => {  \n    const unique = new Set();  \n    const duplicates = new Set();  \n  \n    array.forEach(item => {  \n        if (unique.has(item)) {  \n            duplicates.add(item);  \n            unique.delete(item);  \n        } else if (!duplicates.has(item)) {  \n            unique.add(item);  \n        }  \n    });  \n  \n    return array.filter(item => unique.has(item));  \n};  \n  \nconsole.log(findUniqueForEach(arr));",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Очень простые (базовые операции и манипуляции)"
+        ],
+        "blockTitle": "12. getOccurCount",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Напишите функцию, которая принимает массив и возвращает объект, где ключами являются элементы массива, а значениями — количество раз, которое эти элементы встречаются. Для решения задачи можно использовать метод reduce, который итерируется по массиву и накапливает результат в виде объекта.\\n",
+        "codeBlocks": [
+            {
+                "content": "function getOccurCount(arr) {  \n    return arr.reduce((acc, item) => {  \n        acc[item] = (acc[item] || 0) + 1;  \n        return acc;  \n    }, {});  \n}  \n  \nconsole.log(getOccurCount([\"a\", \"b\", \"c\", \"b\", \"b\", \"a\"]));  \n// { a: 2, b: 3, c: 1 }",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Очень простые (базовые операции и манипуляции)"
+        ],
+        "blockTitle": "13. mergeUnique",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Реализуйте функцию, которая объединяет два отсортированных массива чисел, возвращая новый массив, содержащий только уникальные элементы из обоих массивов, также отсортированные по возрастанию. Задачу можно решить двумя способами:\\nС использованием Set:Объедините два массива с помощью оператора расширения, затем создайте Set для удаления дубликатов и преобразуйте его обратно в массив. После этого отсортируйте массив.С использованием двух указателей:Используйте два указателя для одновременного обхода обоих отсортированных массивов, добавляя элементы в результат, избегая дубликатов.\\n",
+        "codeBlocks": [
+            {
+                "content": "// Решение 1: С использованием Set  \nfunction mergeUniqueWithSet(arr1, arr2) {  \n    return [...new Set([...arr1, ...arr2])].sort((a, b) => a - b);  \n}  \n  \n// Решение 2: С использованием двух указателей  \nfunction mergeUniqueWithPointers(arr1, arr2) {  \n    const result = [];  \n    let i = 0;  \n    let j = 0;  \n  \n    while (i < arr1.length && j < arr2.length) {  \n        if (arr1[i] === arr2[j]) {  \n            if (result[result.length - 1] !== arr1[i]) {  \n                result.push(arr1[i]);  \n            }  \n            i++;  \n            j++;  \n        } else if (arr1[i] < arr2[j]) {  \n            if (result[result.length - 1] !== arr1[i]) {  \n                result.push(arr1[i]);  \n            }  \n            i++;  \n        } else {  \n            if (result[result.length - 1] !== arr2[j]) {  \n                result.push(arr2[j]);  \n            }  \n            j++;  \n        }  \n    }  \n  \n    while (i < arr1.length) {  \n        if (result[result.length - 1] !== arr1[i]) {  \n            result.push(arr1[i]);  \n        }  \n        i++;  \n    }  \n          \n    while (j < arr2.length) {  \n        if (result[result.length - 1] !== arr2[j]) {  \n            result.push(arr2[j]);  \n        }  \n        j++;  \n    }  \n  \n    return result;  \n}  \n  \nconst array1 = [1, 3, 4, 6];  \nconst array2 = [1, 3, 7, 9];  \n  \nconsole.log(\"Using Set:\", mergeUniqueWithSet(array1, array2));        // [1, 3, 4, 6, 7, 9]  \nconsole.log(\"Using Pointers:\", mergeUniqueWithPointers(array1, array2)); // [1, 3, 4, 6, 7, 9]",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Очень простые (базовые операции и манипуляции)"
+        ],
+        "blockTitle": "14. mergeSortedArrays",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Напишите функцию, которая принимает два отсортированных массива чисел и объединяет их в один отсортированный массив. Решение можно реализовать двумя способами:\\nОбъединить два массива, а затем отсортировать полученный массив.Использовать два указателя для одновременного обхода обоих массивов и последовательного добавления элементов в результирующий массив, что позволяет объединить массивы за линейное время.\\n",
+        "codeBlocks": [
+            {
+                "content": "const mergeSortedArrays = (arr1, arr2) =>  \n    [...arr1, ...arr2].sort((a, b) => a - b);  \n  \nconsole.log(mergeSortedArrays([1, 3, 5], [2, 4, 6])); // Ожидаемый результат: [1, 2, 3, 4, 5, 6]  \n  \n  \nconst mergeSortedArrays2 = (arr1, arr2) => {  \n    const result = [];  \n    let i = 0, j = 0;  \n  \n    while (i < arr1.length && j < arr2.length) {  \n        if (arr1[i] < arr2[j]) {  \n            result.push(arr1[i++]);  \n        } else {  \n            result.push(arr2[j++]);  \n        }  \n    }  \n    // Добавляем оставшиеся элементы из arr1 или arr2  \n    return result.concat(arr1.slice(i)).concat(arr2.slice(j));  \n};  \n  \n// Пример использования:  \nconsole.log(mergeSortedArrays2([1, 3, 5], [2, 4, 6])); // Ожидаемый результат: [1, 2, 3, 4, 5, 6]",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Очень простые (базовые операции и манипуляции)"
+        ],
+        "blockTitle": "15. Sort Array By Parity",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан массив чисел nums. Необходимо отсортировать массив так, чтобы все чётные числа оказались в начале массива, а нечётные — в конце. При этом порядок чисел внутри групп не имеет значения. Решение реализовано с использованием двух указателей (in-place):\\nИнициализируйте два указателя: left для начала массива и right для конца.Перемещайте указатель left вправо до тех пор, пока не встретите нечётное число.Перемещайте указатель right влево до тех пор, пока не встретите чётное число.Если left меньше right, поменяйте местами элементы по этим индексам.Повторяйте процесс до встречи указателей, затем верните модифицированный массив.\\n",
+        "codeBlocks": [
+            {
+                "content": "function sortArrayByParity(nums) {  \n    let left = 0;  \n    let right = nums.length - 1;  \n  \n    while (left < right) {  \n        // Сдвигаем левый указатель вправо, пока он не найдет четное число  \n        while (left < right && nums[left] % 2 === 0) {  \n            left++;  \n        }  \n        // Сдвигаем правый указатель влево, пока он не найдет нечетное число  \n        while (left < right && nums[right] % 2 !== 0) {  \n            right--;  \n        }  \n        // Меняем местами найденные нечетное и четное числа  \n        if (left < right) {  \n            [nums[left], nums[right]] = [nums[right], nums[left]];  \n            left++;  \n            right--;  \n        }  \n    }    \n    return nums;  \n}  \n  \nconsole.log(sortArrayByParity([3, 1, 2, 4])); // [4, 2, 3, 1]  \nconsole.log(sortArrayByParity([1, 2, 3, 4]));  // [4, 2, 3, 1]  \nconsole.log(sortArrayByParity([2, 4, 6, 8]));  // [2, 4, 6, 8]  \nconsole.log(sortArrayByParity([1, 3, 5, 7]));  // [1, 3, 5, 7]",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Очень простые (базовые операции и манипуляции)"
+        ],
+        "blockTitle": "16. calculateAverageWeightOfLemons",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан массив объектов, представляющих фрукты с их типом и весом. Необходимо написать функцию, которая вычисляет средний вес для заданного типа фрукта. В данном примере рассчитывается средний вес для \"lemon\".\\n",
+        "codeBlocks": [
+            {
+                "content": "const array = [  \n    { fruit: 'lemon', weight: 10 },  \n    { fruit: 'apple', weight: 10 },  \n    { fruit: 'lemon', weight: 10 },  \n    { fruit: 'lemon', weight: 40 },  \n];  \n  \nconst calculateAverageWeightOfLemons = (fruitsArray, fruitName) => {  \n    const filteredFruits = fruitsArray.filter(item => item.fruit === fruitName);  \n    const totalWeight = filteredFruits.reduce((acc, current) => acc + current.weight, 0);  \n    return totalWeight / filteredFruits.length;  \n};  \n  \nconst averageWeight = calculateAverageWeightOfLemons(array, 'lemon');  \nconsole.log(averageWeight); // Вывод: 20\n",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Очень простые (базовые операции и манипуляции)"
+        ],
+        "blockTitle": "17. findMaxIn2DArray",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Напишите функцию findMaxIn2DArray, которая принимает двумерный массив чисел и находит максимальный элемент вместе с его позицией. Функция должна возвращать объект с двумя свойствами:\\nel — максимальный найденный элемент.index — массив из двух чисел, представляющих индексы максимального элемента в двумерном массиве (первый индекс — номер подмассива, второй — позиция элемента в подмассиве).\\n",
+        "codeBlocks": [
+            {
+                "content": "function findMaxIn2DArray(arr) {  \n    let maxElement = -Infinity;  \n    let maxIndex = [-1, -1];  \n  \n    for (let i = 0; i < arr.length; i++) {  \n        const subArray = arr[i];  \n        for (let j = 0; j < subArray.length; j++) {  \n            if (subArray[j] > maxElement) {  \n                maxElement = subArray[j];  \n                maxIndex = [i, j];  \n            }  \n        }  \n    }  \n    return { el: maxElement, index: maxIndex };  \n}  \n  \nconst array = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];  \n  \nconsole.log(findMaxIn2DArray(array)); // { el: 9, index: [2, 2] }",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Очень простые (базовые операции и манипуляции)"
+        ],
+        "blockTitle": "18. getLastDecisions",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Даны два массива объектов, представляющих решения, где каждый объект имеет поля id и result. Массивы отсортированы по возрастанию id. Необходимо объединить два массива, выбирая последние (наибольшие id) решения так, чтобы итоговый массив содержал k самых последних решений. Решение должно осуществляться с использованием двух указателей, которые двигаются с конца каждого массива, после чего результат разворачивается для получения правильного порядка.\\n",
+        "codeBlocks": [
+            {
+                "content": "const getDecisions1 = [  \n    { id: 1, result: 'approved' },  \n    { id: 3, result: 'waiting' },  \n    { id: 15, result: 'approved' },  \n    { id: 20, result: 'approved' },  \n    { id: 26, result: 'waiting' },  \n    { id: 30, result: 'approved' },  \n];  \n  \nconst getDecisions2 = [  \n    { id: 2, result: 'approved' },  \n    { id: 4, result: 'waiting' },  \n    { id: 14, result: 'approved' },  \n    { id: 16, result: 'waiting' },  \n    { id: 23, result: 'waiting' },  \n    { id: 31, result: 'approved' },  \n    { id: 32, result: 'approved' },  \n];  \n  \nconst getLastDecisions = (decisions1, decisions2, k) => {  \n    let merged = [];  \n    let i = decisions1.length - 1;  \n    let j = decisions2.length - 1;  \n  \n    while ((i >= 0 || j >= 0) && merged.length < k) {  \n        const id1 = i >= 0 ? decisions1[i].id : -Infinity;  \n        const id2 = j >= 0 ? decisions2[j].id : -Infinity;  \n  \n        if (id1 > id2) {  \n            merged.push(decisions1[i]);  \n            i--;  \n        } else {  \n            merged.push(decisions2[j]);  \n            j--;  \n        }  \n    }  \n    return merged.reverse();  \n};  \n  \nconsole.log(getLastDecisions(getDecisions1, getDecisions2, 6));  \n  \n// Ожидаемый вывод =>   \n// [  \n//     { id: 20, result: 'approved' },  \n//     { id: 23, result: 'waiting' },  \n//     { id: 26, result: 'waiting' },  \n//     { id: 30, result: 'approved' },  \n//     { id: 31, result: 'approved' },  \n//     { id: 32, result: 'approved' }  \n// ]",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Очень простые (базовые операции и манипуляции)"
+        ],
+        "blockTitle": "19. intersectArrays",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Даны два массива. Необходимо найти их пересечение, то есть элементы, присутствующие в обоих массивах. Результирующий массив должен содержать уникальные элементы (без повторений). Решение может быть реализовано с использованием структуры данных Set для эффективной проверки вхождения элементов.\\n",
+        "codeBlocks": [
+            {
+                "content": "function intersectArrays(array1, array2) {  \n    const set = new Set(array1); // Уникальные элементы из первого массива  \n    return [...new Set(array2.filter(item => set.has(item)))]; // Уникальные пересечения  \n}  \n  \nconst array1 = [1, 2, 2, 1];  \nconst array2 = [2, 2];  \n  \nconst result = intersectArrays(array1, array2);  \n  \nconsole.log(result); // [2]",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "20. groupById",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Напишите функцию groupById, которая принимает массив объектов, где каждый объект имеет свойство id. Функция должна вернуть объект, где ключами являются значения свойства id, а значениями — соответствующие объекты из массива.\\n",
+        "codeBlocks": [
+            {
+                "content": "const arrayOfObjects = [  \n    { id: 0, name: 'first' },  \n    { id: 1, name: 'second' },  \n    { id: 2, name: 'third' },  \n];  \n  \nfunction groupById(array) {  \n    return array.reduce((acc, obj) => {  \n        acc[obj.id] = obj;  \n        return acc;  \n    }, {});  \n}  \n  \n// Пример использования  \nconst result = groupById(arrayOfObjects);  \nconsole.log(result);  \n  \n// Ожидаемый вывод:  \n// {  \n//     0: { id: 0, name: 'first' },  \n//     1: { id: 1, name: 'second' },  \n//     2: { id: 2, name: 'third' }  \n// }",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "21. Max Consecutive Ones",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан массив nums, состоящий из нулей и единиц. Необходимо определить максимальное количество подряд идущих единиц в массиве. Для решения задачи реализуйте функцию, которая будет проходить по массиву и подсчитывать текущую последовательность единиц, обновляя максимум при необходимости. Если встречается 0, текущая последовательность сбрасывается.\\n",
+        "codeBlocks": [
+            {
+                "content": "// iterations  \nconst findMaxConsecutiveOnes = nums => {  \n    let max = 0;  \n    let current = 0;  \n  \n    for (let i = 0; i < nums.length; i++) {  \n        if (nums[i] === 1) {  \n            current++;  \n            if (current > max) {  \n                max = current;  \n            }  \n        } else {  \n            current = 0;  \n        }  \n    }  \n    return max;  \n};  \n  \nconst nums1 = [1,1,0,1,1,1];  \n  \nconsole.log(findMaxConsecutiveOnes(nums1));",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "22. Two Sum",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан массив чисел nums и целевое значение target. Необходимо найти два числа из массива, сумма которых равна target, и вернуть их индексы. Решение задачи можно реализовать с использованием следующих подходов:\\nИспользование объекта Map:Создайте объект Map для хранения значений массива и их индексов.Итерируйте по массиву, вычисляя разницу между target и текущим числом.Если разница уже присутствует в Map, то найденная пара удовлетворяет условию задачи.Если нет, добавьте текущее число и его индекс в Map.Использование обычного объекта:Аналогично методу с Map, используйте объект для хранения пар \"число-индекс\".Проверьте наличие разницы между target и текущим числом в объекте.Если найдено соответствие, верните индексы.\\n",
+        "codeBlocks": [
+            {
+                "content": "// map  \nconst twoSum = (nums, target) => {  \n    const map = new Map();  \n  \n    for (let i = 0; i < nums.length; i++) {  \n        const diff = target - nums[i];  \n        if (map.has(diff)) {  \n            return [map.get(diff), i];  \n        }  \n        map.set(nums[i], i);  \n    }  \n  \n    return [];  \n};  \n  \n// object  \nconst twoSum2 = (nums, target) => {  \n    const numToIndexMap = {};  \n  \n    for (let i = 0; i < nums.length; i++) {  \n        const diff = target - nums[i];  \n        if (diff in numToIndexMap) {  \n            return [numToIndexMap[diff], i];  \n        }  \n        numToIndexMap[nums[i]] = i;  \n    }  \n  \n    return null;  \n};  \n  \nconst nums = [2, 7, 11, 15];  \nconst target = 9;  \n  \nconst result = twoSum(nums, target);  \n  \nconsole.log(result);",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "23. Majority Element",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан массив чисел, в котором гарантированно существует элемент, встречающийся более чем половину раз. Необходимо найти этот \"мажоритарный\" элемент. Задачу можно решить различными способами:\\nАлгоритм Бойера-Мура:Используйте переменную candidate для хранения кандидата и счетчик count.Проходите по массиву: если count равен 0, выбирайте текущий элемент как нового кандидата. Если текущий элемент равен кандидату, увеличивайте count, иначе уменьшайте его.Использование Map:Считайте вхождения каждого элемента, используя объект Map.Как только для элемента количество вхождений превысит половину длины массива, возвращайте этот элемент.Однострочная сортировка:Отсортируйте массив, затем мажоритарный элемент будет находиться в позиции Math.floor(nums.length / 2).Рекурсивное деление (divide and conquer):Разделите массив пополам, рекурсивно найдите мажоритарный элемент для каждой части, затем объедините результаты, определяя, какой из кандидатов встречается чаще в объединённом массиве.\\n",
+        "codeBlocks": [
+            {
+                "content": "// бойер мур  \nconst majorityElement = nums => {  \n    let candidate, count = 0;  \n  \n    for (const num of nums) {  \n        if (count === 0) candidate = num;  \n        count += (num === candidate) ? 1 : -1;  \n    }  \n    return candidate;  \n};  \n  \nconst nums1 = [3, 2, 3];  \nconsole.log(majorityElement(nums1));  \n  \n// map  \nconst majorityElement2 = nums => {  \n    const counts = new Map();  \n  \n    for (const num of nums) {  \n        counts.set(num, (counts.get(num) || 0) + 1);  \n        if (counts.get(num) > nums.length / 2) return num;  \n    }  \n};  \n  \nconst nums3 = [1, 1, 1, 2, 3, 1, 1, 4, 1];  \nconsole.log(majorityElement2(nums3));  \n  \n// one-liner sorting  \nconst majorityElement3 = nums => (nums.sort((a, b) => a - b))[Math.floor(nums.length / 2)];  \n  \nconst nums4 = [5, 4, 4, 4, 5, 4, 4, 4];  \nconsole.log(majorityElement3(nums4));  \n  \n// рекурсивное деление (divide and conqueror)  \nconst majorityElementRec = (nums, start, end) => {  \n    if (start === end) return nums[start];  \n  \n    const mid = Math.floor((end - start) / 2) + start;  \n    const left = majorityElementRec(nums, start, mid);  \n    const right = majorityElementRec(nums, mid + 1, end);  \n  \n    if (left === right) return left;  \n  \n    const leftCount = nums.slice(start, end + 1).filter(num => num === left).length;  \n    const rightCount = nums.slice(start, end + 1).filter(num => num === right).length;  \n  \n    return leftCount > rightCount ? left : right;  \n};  \n  \nconst majorityElement4 = nums => majorityElementRec(nums, 0, nums.length - 1);  \n  \nconst nums6 = [7, 7, 7, 7, 7, 7, 7, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5];  \nconsole.log(majorityElement4(nums6));",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "24. Best Time to Buy and Sell Stock",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан массив цен на акции, где каждый элемент представляет цену акции в определённый день. Необходимо определить максимальную прибыль, которую можно получить, купив акцию в один день и продав в более поздний день. Если получение прибыли невозможно, функция должна вернуть 0. Решение задачи реализовано с использованием двух указателей:\\nОдин указатель (left) используется для определения дня покупки.Второй указатель (right) используется для определения дня продажи.Проход по массиву начинается с первого дня покупки, а затем определяется, стоит ли обновлять день покупки, если текущая цена меньше предыдущей.На каждом шаге вычисляется потенциальная прибыль, и обновляется максимальная прибыль, если найденная прибыль больше предыдущей.\\n",
+        "codeBlocks": [
+            {
+                "content": "const maxProfit = (prices) => {  \n    let left = 0; // День покупки  \n    let right = 1; // День продажи  \n    let max_profit = 0;  \n    while (right < prices.length) {  \n        if (prices[left] < prices[right]) {  \n            let profit = prices[right] - prices[left]; // Текущая прибыль  \n            max_profit = Math.max(max_profit, profit);  \n        } else {  \n            left = right;  \n        }  \n        right++;  \n    }  \n    return max_profit;  \n};",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "25. Intersection of Two Arrays II",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Даны два массива чисел. Необходимо найти их пересечение, при этом каждый элемент в результирующем массиве должен встречаться столько раз, сколько он встречается в обоих исходных массивах. Для решения задачи можно использовать несколько подходов:\\nMap:Создать карту для подсчета вхождений элементов первого массива.Проитерироваться по второму массиву и, если элемент присутствует в карте (и его количество больше нуля), добавить его в результат и уменьшить счетчик.Reduce:С помощью метода reduce создать объект-счетчик для первого массива.Отфильтровать второй массив, уменьшая счетчик при нахождении совпадений.Два указателя (при условии, что массивы отсортированы):Отсортировать оба массива.Использовать два указателя для нахождения общих элементов.\\n",
+        "codeBlocks": [
+            {
+                "content": "// map  \nfunction intersect(nums1, nums2) {  \n    const map = new Map();  \n    const result = [];  \n  \n    for (let num of nums1) {  \n        map.set(num, (map.get(num) || 0) + 1);  \n    }  \n  \n    for (let num of nums2) {  \n        if (map.get(num) > 0) {  \n            result.push(num);  \n            map.set(num, map.get(num) - 1);  \n        }  \n    }  \n    return result;  \n}  \n  \nconst nums1 = [1, 2, 2, 1];  \nconst nums2 = [2, 2];  \nconsole.log(intersect(nums1, nums2));  \n  \n// reduce  \nfunction intersectWithReduce(nums1, nums2) {  \n    const counts = nums1.reduce((acc, num) => {  \n        acc[num] = (acc[num] || 0) + 1;  \n        return acc;  \n    }, {});  \n  \n    return nums2.filter(num => {  \n        if (counts[num] > 0) {  \n            counts[num]--;  \n            return true;  \n        }  \n        return false;  \n    });  \n}  \n  \nconst nums3 = [4, 9, 5];  \nconst nums4 = [9, 4, 9, 8, 4];  \nconsole.log(intersectWithReduce(nums3, nums4));  \n  \n// if sorted, two pointers  \nfunction intersectSorted(nums1, nums2) {  \n    nums1.sort((a, b) => a - b);  \n    nums2.sort((a, b) => a - b);  \n    const result = [];  \n  \n    let i = 0;  \n    let j = 0;  \n  \n    while (i < nums1.length && j < nums2.length) {  \n        if (nums1[i] === nums2[j]) {  \n            result.push(nums1[i]);  \n            i++;  \n            j++;  \n        } else if (nums1[i] < nums2[j]) {  \n            i++;  \n        } else {  \n            j++;  \n        }  \n    }  \n    return result;  \n}  \n  \nconst nums5 = [4, 5, 9];  \nconst nums6 = [9, 9, 8, 4];  \nconsole.log(intersectSorted(nums5, nums6));",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "26. groupByCity",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Обработайте массив объектов, представляющих людей с их именами и городами, и распределите их по группам на основе города. Ожидаемый результат должен представлять собой объект, где ключами являются названия городов, а значениями — либо строка (если в городе один человек), либо массив имен (если в городе несколько человек). В данном примере:\\nРеализуйте несколько вариантов решения, используя методы reduce, forEach, цикл for...of, Map и метод find.\\n",
+        "codeBlocks": [
+            {
+                "content": "{\n    'Moscow': [ 'Alex', 'Ivan' ],\n    'New York': 'Joe',\n    'Berlin': 'Johan'\n}",
+                "language": "js",
+                "isFoldable": false
+            },
+            {
+                "content": "// Исходный массив с людьми и их городами\nconst people = [  \n    {  \n        name: 'Alex',  \n        city: 'Moscow',  \n    },  \n    {  \n        name: 'Ivan',  \n        city: 'Moscow',  \n    },  \n    {  \n        name: 'Joe',  \n        city: 'New York'  \n    },  \n    {  \n        name: 'Johan',  \n        city: 'Berlin'  \n    },  \n];  \n  \n// reduce  \nconst groupByCityReduce = (array) => {  \n    return array.reduce((acc, current) => {  \n        if (acc[current.city]) {  \n            // Если уже существует значение, преобразуем его в массив (если это ещё не массив) и добавляем новое имя  \n            acc[current.city] = [].concat(acc[current.city], current.name);  \n        } else {  \n            // Если значения ещё нет, сохраняем имя в виде строки  \n            acc[current.city] = current.name;  \n        }  \n        return acc;  \n    }, {});  \n};  \n  \nconst groupedReduce = groupByCityReduce(people);  \nconsole.log(\"Using reduce:\", groupedReduce);  \n  \n// forEach  \nconst groupByCityForEach = (array) => {  \n    const result = {};  \n    array.forEach(person => {  \n        if (!result[person.city]) {  \n            result[person.city] = [];  \n        }  \n        result[person.city].push(person.name);  \n    });  \n    return result;  \n};  \n  \nconst groupedForEach = groupByCityForEach(people);  \nconsole.log(\"Using forEach:\", groupedForEach);  \n  \n// for...of  \nconst groupByCityForOf = (array) => {  \n    const result = {};  \n    for (const person of array) {  \n        if (!result[person.city]) {  \n            result[person.city] = [];  \n        }  \n        result[person.city].push(person.name);  \n    }  \n    return result;  \n};  \n  \nconst groupedForOf = groupByCityForOf(people);  \nconsole.log(\"Using for...of loop:\", groupedForOf);  \n  \n// Map  \nconst groupByCityMap = (array) => {  \n    const map = new Map();  \n    array.forEach(person => {  \n        if (!map.has(person.city)) {  \n            map.set(person.city, []);  \n        }  \n        map.get(person.city).push(person.name);  \n    });  \n    // Преобразуем Map в обычный объект  \n    return Object.fromEntries(map);  \n};  \n  \nconst groupedMap = groupByCityMap(people);  \nconsole.log(\"Using Map:\", groupedMap);  \n  \n// find  \nconst groupByCityFind = (array) => {  \n    const result = {};  \n    for (const person of array) {  \n        // Если среди ключей объекта нет нужного города, добавляем его  \n        if (!Object.keys(result).some(city => city === person.city)) {  \n            result[person.city] = [];  \n        }  \n        result[person.city].push(person.name);  \n    }  \n    return result;  \n};  \n  \nconst groupedFind = groupByCityFind(people);  \nconsole.log(\"Using find:\", groupedFind);\n",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "27. groupByCountry",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан массив объектов, каждый из которых содержит информацию о пользователе (id, age, name, country, registered). Необходимо преобразовать этот массив в объект, где ключами будут названия стран, а значениями — вложенные объекты. Внутренний объект должен иметь в качестве ключей id пользователей, а значениями — оставшиеся свойства (без id и country). Это можно реализовать несколькими способами, например, с использованием методов reduce, forEach или Map.\\n",
+        "codeBlocks": [
+            {
+                "content": "const data = [  \n    { id: 1, age: 20, name: \"Иван\", country: \"Russia\", registered: true },  \n    { id: 2, age: 30, name: \"Дима\", country: \"Russia\", registered: false },  \n    { id: 3, age: 20, name: \"Леха\", country: \"Russia\", registered: true },  \n    { id: 4, age: 20, name: \"Дима\", country: \"Usa\", registered: true },  \n    { id: 5, age: 20, name: \"Леха\", country: \"Russia\", registered: false },  \n    { id: 6, age: 30, name: \"Дима\", country: \"Russia\", registered: true },  \n    { id: 7, age: 20, name: \"Дима\", country: \"Usa\", registered: false },  \n    { id: 8, age: 20, name: \"Дима\", country: \"Usa\", registered: false },  \n];  \n  \n// reduce  \nfunction transformDataReduce(data) {  \n    return data.reduce((acc, item) => {  \n        const { id, country, ...rest } = item;  \n  \n        if (!acc[country]) {  \n            acc[country] = {};  \n        }  \n  \n        acc[country][id] = rest;  \n        return acc;  \n    }, {});  \n}  \n  \nconst resultReduce = transformDataReduce(data);  \nconsole.log(resultReduce);  \n  \n// forEach  \nfunction transformDataForEach(data) {  \n    const result = {};  \n  \n    data.forEach(item => {  \n        const { id, country, ...rest } = item;  \n  \n        if (!result[country]) {  \n            result[country] = {};  \n        }  \n  \n        result[country][id] = rest;  \n    });  \n  \n    return result;  \n}  \n  \nconst resultForEach = transformDataForEach(data);  \nconsole.log(resultForEach);  \n  \n// map  \nfunction transformDataMap(data) {  \n    const countryMap = new Map();  \n  \n    data.forEach(item => {  \n        const { id, country, ...rest } = item;  \n  \n        if (!countryMap.has(country)) {  \n            countryMap.set(country, new Map());  \n        }  \n  \n        countryMap.get(country).set(id, rest);  \n    });  \n  \n    const result = {};  \n    countryMap.forEach((countryData, country) => {  \n        result[country] = Object.fromEntries(countryData);  \n    });  \n  \n    return result;  \n}  \n  \nconst resultMap = transformDataMap(data);  \nconsole.log(resultMap);",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "28. findDuplicate",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан массив строк. Необходимо найти все элементы, которые встречаются более одного раза, и вернуть их в виде массива без дубликатов. Решение задачи предлагается реализовать двумя способами:\\nС использованием объектов Set для отслеживания уже встреченных элементов и для хранения найденных дубликатов.С использованием комбинации методов filter и indexOf для поиска повторяющихся элементов, а затем удаления повторений с помощью Set.\\n",
+        "codeBlocks": [
+            {
+                "content": "const arr = ['1', '2', '3', '1', '4', '8', '2', '3'];  \nlet result = [];  \n  \n// 1. Using Set  \nconst findDuplicate = (arr) => {  \n    const seen = new Set();  \n    const duplicates = new Set();  \n  \n    for (let item of arr) {  \n        if (seen.has(item)) {  \n            duplicates.add(item);  \n        }  \n        seen.add(item);  \n    }  \n    return Array.from(duplicates);  \n};  \n  \nresult = findDuplicate(arr);  \nconsole.log(\"Set method:\", result);  \n  \n// 2. Using filter + indexOf one-liner  \nconst findDuplicate2 = arr => [...new Set(arr)].filter((item, index) => arr.indexOf(item) !== index);  \nconsole.log(\"Filter + indexOf method:\", findDuplicate2(arr));",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "29. getDuplicate",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан массив, который может содержать вложенные массивы, состоящий из чисел. Необходимо написать функцию, которая сначала «разворачивает» вложенные массивы в один плоский массив, затем подсчитывает, сколько раз встречается каждый элемент, и возвращает объект, где ключами являются элементы, а значениями — их количество в исходном массиве.\\n",
+        "codeBlocks": [
+            {
+                "content": "function getDuplicates(arr) {  \n    const flatArray = flattenArray(arr);  \n    const countMap = {};  \n  \n    flatArray.forEach(num => {  \n        countMap[num] = (countMap[num] || 0) + 1;  \n    });  \n  \n    return countMap;  \n}  \n  \nfunction flattenArray(arr) {  \n    return arr.reduce((acc, val) => {  \n        return acc.concat(Array.isArray(val) ? flattenArray(val) : val);  \n    }, []);  \n}  \n  \nconst arr = [1, 1, 4, 5, [1, 6, 4, [9, 8, 3]], 3, 2, [8]];  \n  \nconsole.log(getDuplicates(arr)); // { 1: 3, 4: 2, 5: 1, 6: 1, 9: 1, 8: 2, 3: 2, 2: 1 }",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "30. getMostRepeatedItem",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан вложенный массив, который может содержать числа и строки. Необходимо написать функцию, которая:\\nРекурсивно \"расплющивает\" массив.Подсчитывает, сколько раз каждый элемент встречается в массиве.Находит элемент с наибольшим количеством вхождений.Возвращает результат в виде объекта, где ключ — это наиболее часто встречающийся элемент, а значение — количество его вхождений.\\n",
+        "codeBlocks": [
+            {
+                "content": "const nestedArray = [2, 'A', 2, ['A', 4, ['A', 6, ['A', 8]]]];  \n  \nconst getMostRepeatedItem = (arr) => {  \n    // Функция для рекурсивного расплющивания массива  \n    const flattenArray = (array) =>  \n        array.reduce(  \n            (acc, val) => acc.concat(Array.isArray(val) ? flattenArray(val) : val),  \n            []  \n        );  \n  \n    // Расплющиваем массив  \n    const flatArr = flattenArray(arr);  \n  \n    // Подсчитываем количество вхождений каждого элемента  \n    const countMap = flatArr.reduce((acc, item) => {  \n        acc[item] = (acc[item] || 0) + 1;  \n        return acc;  \n    }, {});  \n  \n    // Ищем элемент с наибольшим количеством вхождений  \n    const mostRepeated = Object.keys(countMap).reduce((a, b) =>  \n        countMap[a] > countMap[b] ? a : b  \n    );  \n  \n    // Возвращаем результат в виде объекта  \n    return { [mostRepeated]: countMap[mostRepeated] };  \n};  \n  \nconsole.log(getMostRepeatedItem(nestedArray)); // { A: 4 }",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "31. getMostRepeatedItem",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Напишите функцию, которая принимает вложенный массив (массив, содержащий вложенные массивы) и возвращает объект, в котором ключ — элемент, встречающийся чаще всего, а значение — количество его вхождений. Для решения задачи необходимо:\\nРекурсивно \"расплющить\" вложенный массив.Подсчитать частоту каждого элемента.Найти элемент с наибольшей частотой.Вернуть результат в виде объекта.\\n",
+        "codeBlocks": [
+            {
+                "content": "const nestedArray = [2, 'A', 2, ['A', 4, ['A', 6, ['A', 8]]]];  \n  \nconst getMostRepeatedItem = (arr) => {  \n    // Рекурсивная функция для расплющивания массива  \n    const flattenArray = (array) =>  \n        array.reduce((acc, val) =>  \n            acc.concat(Array.isArray(val) ? flattenArray(val) : val), []);  \n  \n    // Расплющенный массив  \n    const flatArr = flattenArray(arr);  \n  \n    // Подсчет вхождений каждого элемента  \n    const countMap = flatArr.reduce((acc, item) => {  \n        acc[item] = (acc[item] || 0) + 1;  \n        return acc;  \n    }, {});  \n  \n    // Поиск элемента с максимальным количеством вхождений  \n    const mostRepeated = Object.keys(countMap).reduce((a, b) =>  \n        countMap[a] > countMap[b] ? a : b  \n    );  \n  \n    // Возвращаем результат в виде объекта  \n    return { [mostRepeated]: countMap[mostRepeated] };  \n};  \n  \nconsole.log(getMostRepeatedItem(nestedArray)); // { A: 4 }",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "32. Move Zeroes leetcode",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан массив чисел, в котором необходимо переместить все нулевые элементы в конец, сохраняя порядок ненулевых элементов. Задача должна быть решена без создания дополнительного массива (in place) и с использованием альтернативных подходов.\\nРеализуйте несколько вариантов решения:\\nДва указателя (in place):Используйте два указателя: один для текущего элемента, другой для позиции последнего ненулевого элемента.Обменивайте ненулевые элементы с элементами, находящимися в позиции последнего ненулевого элемента.Две проверки (in place):В первом проходе копируйте все ненулевые элементы в начало массива.Во втором проходе заполните оставшиеся позиции нулями.Push (новый массив):Создайте новый массив, добавляя сначала ненулевые элементы, а затем добавляя нули до достижения исходной длины массива.Фильтрация и конкатенация (новый массив):Используйте методы filter и concat, чтобы сначала отфильтровать ненулевые элементы, а затем добавить необходимое количество нулей в конец.\\n",
+        "codeBlocks": [
+            {
+                "content": "// два указателя (in place)  \nfunction moveZeroesInPlace(nums) {  \n    let lastNonZero = 0;  \n    for (let i = 0; i < nums.length; i++) {  \n        if (nums[i] !== 0) {  \n            [nums[lastNonZero], nums[i]] = [nums[i], nums[lastNonZero]];  \n            lastNonZero++;  \n        }  \n    }  \n}  \n  \nconst nums1 = [0, 1, 0, 3, 12];  \nmoveZeroesInPlace(nums1);  \nconsole.log(nums1);  // [1, 3, 12, 0, 0]\n  \n// две проверки (in place)  \nfunction moveZeroesTwoPass(nums) {  \n    let count = 0;  \n    for (let i = 0; i < nums.length; i++) {  \n        if (nums[i] !== 0) {  \n            nums[count] = nums[i];  \n            count++;  \n        }  \n    }  \n    for (let i = count; i < nums.length; i++) {  \n        nums[i] = 0;  \n    }  \n}  \n  \nconst nums2 = [0, 1, 0, 3, 12];  \nmoveZeroesTwoPass(nums2);  \nconsole.log(nums2);  // [1, 3, 12, 0, 0]\n  \n// push (новый массив)  \nfunction moveZeroesNewArray(nums) {  \n    const result = [];  \n    // First pass: Add all non-zero elements to the result array  \n    for (const num of nums) {  \n        if (num !== 0) {  \n            result.push(num);  \n        }  \n    }  \n    // Add zeros to the end of the result array  \n    while (result.length < nums.length) {  \n        result.push(0);  \n    }  \n    return result;  \n}  \n  \nconst nums3 = [0, 1, 0, 3, 12];  \nconst newArrayResult = moveZeroesNewArray(nums3);  \nconsole.log(newArrayResult);  // [1, 3, 12, 0, 0]\n  \n// фильтрация-конкатенация (новый массив)  \nfunction moveZeroesWithFilter(nums) {  \n    const nonZeroes = nums.filter(num => num !== 0);  \n    const zeroCount = nums.length - nonZeroes.length;  \n    return nonZeroes.concat(Array(zeroCount).fill(0));  \n}  \n  \nconst nums4 = [0, 1, 0, 3, 12];  \nconst filterResult = moveZeroesWithFilter(nums4);  \nconsole.log(filterResult);  // [1, 3, 12, 0, 0]",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "33. Group Anagrams",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан массив строк. Необходимо сгруппировать строки, которые являются анаграммами друг друга, и вернуть их группировку в виде массива массивов. Решение можно реализовать различными способами:\\nСортировка по ключу:Отсортируйте символы в каждой строке, чтобы получить ключ.Используйте объект для группировки строк по этому отсортированному ключу.Количество символов как ключ:Подсчитайте количество каждого символа в строке (предполагается, что строки состоят из строчных букв английского алфавита).Используйте полученную строку-счетчик (например, с разделителем) как ключ для группировки.Использование Map:Аналогично методу с подсчетом символов, но используя Map для хранения групп анаграмм.\\n",
+        "codeBlocks": [
+            {
+                "content": "// сортировка по ключу  \nfunction groupAnagramsSort(strs) {  \n    const anagrams = {};  \n  \n    for (const str of strs) {  \n        const sortedStr = str.split('').sort().join('');  \n        if (!anagrams[sortedStr]) {  \n            anagrams[sortedStr] = [];  \n        }  \n        anagrams[sortedStr].push(str);  \n    }  \n  \n    return Object.values(anagrams);  \n}  \n  \nconsole.log(groupAnagramsSort([\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"]));  \n  \n  \n// колво символов как ключ  \nfunction groupAnagramsCount(strs) {  \n    const anagrams = {};  \n  \n    for (const str of strs) {  \n        const count = new Array(26).fill(0);  \n        for (const char of str) {  \n            count[char.charCodeAt(0) - 'a'.charCodeAt(0)]++;  \n        }  \n        const key = count.join('#');  \n        if (!anagrams[key]) {  \n            anagrams[key] = [];  \n        }  \n        anagrams[key].push(str);  \n    }  \n  \n    return Object.values(anagrams);  \n}  \n  \nconsole.log(groupAnagramsCount([\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"]));  \n  \n  \n// map  \nfunction groupAnagramsMap(strs) {  \n    const anagrams = new Map();  \n  \n    for (const str of strs) {  \n        const count = new Array(26).fill(0);  \n        for (const char of str) {  \n            count[char.charCodeAt(0) - 'a'.charCodeAt(0)]++;  \n        }  \n        const key = count.toString();  \n        if (!anagrams.has(key)) {  \n            anagrams.set(key, []);  \n        }  \n        anagrams.get(key).push(str);  \n    }  \n  \n    return Array.from(anagrams.values());  \n}  \n  \nconsole.log(groupAnagramsMap([\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"]));",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "34. rangeExtraction",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Реализуйте функцию, которая принимает отсортированный массив чисел (включая отрицательные) и преобразует его в строковое представление, где последовательные числа, составляющие диапазон из трёх и более элементов, сворачиваются в формат \"start-end\". Если последовательность короче, числа выводятся отдельно, разделённые запятыми.\\nАлгоритм решения:\\nИнициализируйте переменные для отслеживания начала (rangeStart) и конца (rangeEnd) текущего диапазона.Проходите по массиву и, если текущее число является продолжением диапазона (равно rangeEnd + 1), обновляйте rangeEnd.Если последовательность прерывается, проверьте длину диапазона:Если диапазон содержит три или более числа, добавьте строку в формате \"start-end\" в результат.Иначе, добавьте каждое число из диапазона отдельно.Повторите для всех элементов массива и верните результат в виде строки, где части разделены запятыми.\\n",
+        "codeBlocks": [
+            {
+                "content": "function rangeExtraction(list) {  \n    const result = [];  \n    let rangeStart = list[0];  \n    let rangeEnd = list[0];  \n  \n    for (let i = 1; i <= list.length; i++) {  \n        const current = list[i];  \n        if (current === rangeEnd + 1) {  \n            rangeEnd = current;  \n        } else {  \n            if (rangeEnd - rangeStart >= 2) {  \n                result.push(`${rangeStart}-${rangeEnd}`);  \n            } else {  \n                for (let j = rangeStart; j <= rangeEnd; j++) {  \n                    result.push(j.toString());  \n                }  \n            }  \n            rangeStart = current;  \n            rangeEnd = current;  \n        }  \n    }  \n    return result.join(',');  \n}  \n  \nconst range = [-10, -9, -8, -7, -3, -2, -1, 0, 1, 3, 4, 5, 14, 15, 17, 18, 19, 20];  \nconsole.log(rangeExtraction(range));",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "35. Kth Largest Element in an Array",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан массив чисел nums и целое число k. Необходимо найти k-й по величине элемент в массиве.Обратите внимание, что k-й по величине элемент означает k-й элемент в отсортированном по убыванию массиве, то есть наибольший элемент имеет позицию 1.\\nРеализуйте решение задачи двумя подходами:\\nСортировка:Отсортируйте массив по убыванию и верните элемент с индексом k - 1.Quickselect:Используйте алгоритм Quickselect, который в среднем работает за O(n), для нахождения k-го по величине элемента, интерпретируя задачу как поиск (n-k)-го по величине элемента в отсортированном по возрастанию массиве.\\n",
+        "codeBlocks": [
+            {
+                "content": "// Подход 1: Сортировка\nfunction findKthLargestSort(nums, k) {\n    nums.sort((a, b) => b - a); // сортировка по убыванию\n    return nums[k - 1];\n}\n\n// Пример использования:\nconst nums1 = [3, 2, 1, 5, 6, 4];\nconst k1 = 2;\nconsole.log(findKthLargestSort(nums1, k1)); // Ожидаемый вывод: 5\n\n\n// Подход 2: Quickselect\nfunction findKthLargest(nums, k) {\n    const pos = nums.length - k; // k-й по величине элемент является (n-k)-ым по величине, если массив отсортирован по возрастанию\n    return quickselect(nums, 0, nums.length - 1, pos);\n}\n\nfunction quickselect(nums, left, right, pos) {\n    if (left === right) return nums[left];\n    \n    const pivotIndex = partition(nums, left, right);\n    \n    if (pivotIndex === pos) {\n        return nums[pivotIndex];\n    } else if (pivotIndex < pos) {\n        return quickselect(nums, pivotIndex + 1, right, pos);\n    } else {\n        return quickselect(nums, left, pivotIndex - 1, pos);\n    }\n}\n\nfunction partition(nums, left, right) {\n    const pivot = nums[right];\n    let storeIndex = left;\n    for (let i = left; i < right; i++) {\n        if (nums[i] < pivot) { // ищем элементы меньше опорного\n            [nums[i], nums[storeIndex]] = [nums[storeIndex], nums[i]];\n            storeIndex++;\n        }\n    }\n    [nums[storeIndex], nums[right]] = [nums[right], nums[storeIndex]];\n    return storeIndex;\n}\n\n// Пример использования:\nconst nums2 = [3, 2, 1, 5, 6, 4];\nconst k2 = 2;\nconsole.log(findKthLargest(nums2, k2)); // Ожидаемый вывод: 5",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "36. Top K Frequent Elements",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан массив чисел nums и число k. Необходимо найти k наиболее часто встречающихся элементов в массиве. Решение задачи реализовано с использованием метода \"bucket sort\" (корзин), где:\\nСначала создается карта частот, где ключ — элемент массива, а значение — количество его вхождений.Затем создается массив \"корзин\", где индекс соответствует частоте, а в каждой корзине хранятся элементы с данной частотой.Начиная с самой высокой корзины, собираются элементы до тех пор, пока не будет получено k элементов.\\n",
+        "codeBlocks": [
+            {
+                "content": "function topKFrequent(nums, k) {  \n    // Шаг 1: Создаем карту частоты  \n    const frequencyMap = {};  \n    for (let num of nums) {  \n        frequencyMap[num] = (frequencyMap[num] || 0) + 1;  \n    }  \n  \n    // Шаг 2: Создаем массив \"корзин\" для частот  \n    const buckets = Array(nums.length + 1).fill().map(() => []);  \n  \n    // Шаг 3: Заполняем корзины, где индекс — это частота  \n    for (let num in frequencyMap) {  \n        const freq = frequencyMap[num];  \n        buckets[freq].push(Number(num));  \n    }  \n  \n    // Шаг 4: Собираем k самых частых элементов, начиная с корзины самой высокой частоты  \n    const result = [];  \n    for (let i = buckets.length - 1; i >= 0 && result.length < k; i--) {  \n        if (buckets[i].length > 0) {  \n            result.push(...buckets[i]);  \n        }  \n    }  \n    // Возвращаем только первые k элементов, чтобы точно получить результат нужной длины  \n    return result.slice(0, k);  \n}  \n  \n// Примеры использования  \nconsole.log(topKFrequent([1,1,1,2,2,3], 2)); // Ожидаемый результат: [1, 2]  \nconsole.log(topKFrequent([1], 1));           // Ожидаемый результат: [1]",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "37. findDeepestMinElement",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан вложенный массив чисел, который может содержать элементы и другие вложенные массивы. Необходимо найти элемент с минимальным значением, который находится на самой глубокой вложенности, и вернуть пару: [максимальная глубина, минимальный элемент на этой глубине]. Если на самой глубокой глубине встречается несколько элементов, выбирается минимальный из них.\\nАлгоритм решения:\\nИспользуем рекурсивный обход массива с параметром текущей глубины.Для каждого не массивного элемента обновляем переменные, если:Текущая глубина больше предыдущей максимальной глубины, илиГлубина равна максимальной, но элемент меньше текущего минимального.Возвращаем массив из двух значений: [максимальная глубина, минимальный элемент на этой глубине].\\n",
+        "codeBlocks": [
+            {
+                "content": "const arr2 = [1, [[20, 1, [101]], 2], [[-2], [[102, 100]]]];  \n  \nfunction findDeepestMinElement(array) {  \n    let minElement = Infinity;  \n    let maxDepth = -1;  \n  \n    function traverse(arr, currentDepth) {  \n        arr.forEach(item => {  \n            if (Array.isArray(item)) {  \n                // Рекурсивный вызов для вложенных массивов, увеличивая глубину  \n                traverse(item, currentDepth + 1);  \n            } else {  \n                // Если текущая глубина больше максимальной, обновляем maxDepth и minElement  \n                if (currentDepth > maxDepth) {  \n                    maxDepth = currentDepth;  \n                    minElement = item;  \n                } else if (currentDepth === maxDepth && item < minElement) {  \n                    // Если глубина равна максимальной, выбираем минимальное значение  \n                    minElement = item;  \n                }  \n            }  \n        });  \n    }  \n  \n    // Запускаем рекурсивный обход с начальной глубиной 0  \n    traverse(array, 0);  \n  \n    return [maxDepth, minElement];  \n}  \n  \nconsole.log(findDeepestMinElement(arr2)); // Ожидаемый результат: [3, 100]",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "38. getMatchedNumbers",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Напишите функцию getMatchedNumbers, которая принимает два отсортированных массива чисел и возвращает объект с двумя свойствами:\\nmatched: массив чисел, которые присутствуют в обоих массивах (уникальные значения).different: массив чисел, которые встречаются только в одном из массивов (также уникальные).\\nРешение должно использовать два указателя для одновременного обхода обоих массивов и затем добавлять оставшиеся элементы.\\n",
+        "codeBlocks": [
+            {
+                "content": "function getMatchedNumbers(arr1, arr2) {  \n    const matched = new Set();  \n    const different = new Set();  \n    let i = 0;  \n    let j = 0;  \n  \n    while (i < arr1.length && j < arr2.length) {  \n        if (arr1[i] === arr2[j]) {  \n            // Добавляем в matched, если элемент совпадает  \n            matched.add(arr1[i]);  \n            i++;  \n            j++;  \n        } else if (arr1[i] < arr2[j]) {  \n            // Добавляем уникальные элементы из arr1 в different  \n            different.add(arr1[i]);  \n            i++;  \n        } else {  \n            // Добавляем уникальные элементы из arr2 в different  \n            different.add(arr2[j]);  \n            j++;  \n        }  \n    }  \n  \n    // Добавляем оставшиеся элементы из arr1 и arr2 в different  \n    while (i < arr1.length) {  \n        different.add(arr1[i]);  \n        i++;  \n    }  \n  \n    while (j < arr2.length) {  \n        different.add(arr2[j]);  \n        j++;  \n    }  \n  \n    // Преобразуем Set в массив для результата  \n    return { matched: Array.from(matched), different: Array.from(different) };  \n}  \n  \n// Пример использования  \nconsole.log(getMatchedNumbers([1, 3, 3, 5], [3, 5, 5, 6]));  \n// Ожидаемый результат: { matched: [3, 5], different: [1, 6] }",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "39. Flatten Deeply Nested Array",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан вложенный массив, который может содержать элементы на произвольном уровне вложенности. Необходимо написать функцию, которая рекурсивно \"расплющивает\" массив, возвращая новый массив, содержащий все элементы в одном уровне.\\n",
+        "codeBlocks": [
+            {
+                "content": "function flattenDeep(arr) {\n    return arr.reduce((acc, item) => {\n        if (Array.isArray(item)) {\n            acc.push(...flattenDeep(item));\n        } else {\n            acc.push(item);\n        }\n        return acc;\n    }, []);\n}\n\n// Пример использования:\nconst nestedArray = [1, [2, [3, [4]], 5], 6];\nconsole.log(flattenDeep(nestedArray)); // Ожидаемый результат: [1, 2, 3, 4, 5, 6]",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "40. Flatten Deeply Nested Array",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан вложенный массив, который может содержать элементы на произвольном уровне вложенности. Необходимо \"расплющить\" массив до указанной глубины (по умолчанию 1) двумя способами:\\nИтерационноРекурсивно\\nНиже приведены два решения:\\nRecursive approach:\\nIteration approach:\\n",
+        "codeBlocks": [
+            {
+                "content": "function flatRecursive(arr, depth = 1) {\n  const result = [];\n\n  function flatten(currentArray, currentDepth) {\n    for (let item of currentArray) {\n      if (Array.isArray(item) && currentDepth < depth) {\n        flatten(item, currentDepth + 1);\n      } else {\n        result.push(item);\n      }\n    }\n  }\n\n  flatten(arr, 0);\n  return result;\n}",
+                "language": "js",
+                "isFoldable": true
+            },
+            {
+                "content": "function flatIteration(arr, depth = 1) {\n  const result = [];\n  const stack = arr.map(item => ({ item, depth: 0 }));\n\n  while (stack.length > 0) {\n    const { item, depth: currentDepth } = stack.pop();\n\n    if (Array.isArray(item) && currentDepth < depth) {\n      // Push items in reverse order to maintain original sequence\n      for (let i = item.length - 1; i >= 0; i--) {\n        stack.push({ item: item[i], depth: currentDepth + 1 });\n      }\n    } else {\n      result.push(item);\n    }\n  }\n\n  return result.reverse(); // Reverse to correct the order\n}\n",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "41. sortedSquares",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан отсортированный по неубыванию массив целых чисел, который может содержать отрицательные значения. Необходимо вернуть новый массив, в котором каждый элемент является квадратом соответствующего элемента исходного массива, при этом новый массив должен быть отсортирован по неубыванию. Решение должно работать за O(n) времени, используя два указателя.\\n",
+        "codeBlocks": [
+            {
+                "content": "function sortedSquares(arr) {  \n    let left = 0;  \n    let right = arr.length - 1;  \n    const result = new Array(arr.length);  \n    let index = arr.length - 1;  \n  \n    while (left <= right) {  \n        const leftSquare = arr[left] ** 2;  \n        const rightSquare = arr[right] ** 2;  \n  \n        if (leftSquare > rightSquare) {  \n            result[index] = leftSquare;  \n            left++;  \n        } else {  \n            result[index] = rightSquare;  \n            right--;  \n        }  \n        index--;  \n    }  \n  \n    return result;  \n}  \n  \nconst array = [-9, -2, 0, 2, 3];  \nconsole.log(sortedSquares(array)); // Ожидаемый результат: [0, 4, 4, 9, 81]",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "42. sortEvensOnly",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Реализуйте функцию sortEvensOnly, которая принимает массив чисел. Функция должна отсортировать только чётные числа, сохраняя их исходные позиции в массиве, а остальные числа оставить без изменений.\\nАлгоритм решения:\\nПройдите по массиву и соберите все чётные числа вместе с их индексами.Отсортируйте массив чётных чисел по возрастанию.Поместите отсортированные чётные числа обратно в исходный массив на те же позиции.Верните модифицированный массив.\\n",
+        "codeBlocks": [
+            {
+                "content": "function sortEvensOnly(arr = []) {\n  // 1. Находим чётные элементы и их индексы\n  let evenIndexes = [];\n  let evens = [];\n  arr.forEach((num, idx) => {\n    if (num % 2 === 0) {\n      evenIndexes.push(idx);\n      evens.push(num);\n    }\n  });\n\n  // 2. Сортируем массив с чётными числами по возрастанию\n  evens.sort((a, b) => a - b);\n\n  // 3. Возвращаем чётные числа на исходные индексы в отсортированном порядке\n  evenIndexes.forEach((index, i) => {\n    arr[index] = evens[i];\n  });\n\n  return arr;\n}\n\n// Пример использования:\nconsole.log(sortEvensOnly([4, 1, 0, 5, 2, 3])); // Ожидаемый результат: [0, 1, 2, 5, 4, 3]\nconsole.log(sortEvensOnly([3, 6, 8, 4, 1]));    // Ожидаемый результат: [3, 4, 6, 8, 1]",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "43. sortOddOnly",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Реализуйте функцию sortOddIndices, которая принимает массив чисел и сортирует элементы, расположенные на нечетных индексах, по возрастанию, при этом элементы на четных индексах остаются без изменений.\\nАлгоритм решения:\\nИзвлеките все элементы с нечетных индексов и отсортируйте их по возрастанию.Пройдитесь по исходному массиву и замените элементы на нечетных позициях отсортированными значениями.Верните полученный массив.\\n",
+        "codeBlocks": [
+            {
+                "content": "function sortOddIndices(arr) {  \n    // 1. Извлекаем элементы с нечетных индексов и сортируем их  \n    const oddIndexedElements = arr  \n        .filter((_, index) => index % 2 !== 0)  \n        .sort((a, b) => a - b);  \n  \n    // 2. Вставляем отсортированные элементы обратно на нечетные индексы  \n    let oddIndex = 0;  \n    return arr.map((element, index) => {  \n        if (index % 2 !== 0) {  \n            return oddIndexedElements[oddIndex++];  \n        }  \n        return element;  \n    });  \n}  \n  \n// Пример использования:  \nconst array = [4, 3, 1, 2, 4, 7, 2, 3];  \nconsole.log(sortOddIndices(array)); // Ожидаемый результат: [4, 1, 3, 2, 4, 3, 2, 7]",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "44. Group By",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Добавьте метод groupBy в прототип массива, который принимает функцию-предикат fn и группирует элементы массива по ключам, возвращаемым этой функцией. Результат должен быть объектом, где каждое свойство — это ключ, а значение — массив элементов, для которых функция вернула этот ключ.\\n",
+        "codeBlocks": [
+            {
+                "content": "Array.prototype.groupBy = function(fn) {  \n    return this.reduce((acc, item) => {  \n        const key = fn(item);  \n        if (!acc[key]) {  \n            acc[key] = [];  \n        }  \n        acc[key].push(item);  \n        return acc;  \n    }, {});  \n};  \n  \n// Пример 1  \nconst array1 = [  \n    {\"id\": \"1\"},  \n    {\"id\": \"1\"},  \n    {\"id\": \"2\"}  \n];  \nconst fn1 = function(item) {  \n    return item.id;  \n};  \nconsole.log(array1.groupBy(fn1));  \n// Ожидаемый результат: { \"1\": [{\"id\": \"1\"}, {\"id\": \"1\"}], \"2\": [{\"id\": \"2\"}] }  \n  \n// Пример 2  \nconst array2 = [  \n    [1, 2, 3],  \n    [1, 3, 5],  \n    [1, 5, 9]  \n];  \nconst fn2 = function(list) {  \n    return String(list[0]);  \n};  \nconsole.log(array2.groupBy(fn2));  \n// Ожидаемый результат: { \"1\": [[1, 2, 3], [1, 3, 5], [1, 5, 9]] }  \n  \n// Пример 3  \nconst array3 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];  \nconst fn3 = function(n) {  \n    return String(n > 5);  \n};  \nconsole.log(array3.groupBy(fn3));  \n// Ожидаемый результат: { \"true\": [6, 7, 8, 9, 10], \"false\": [1, 2, 3, 4, 5] }",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "44.1. createKeyValueObject",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Напишите функцию createKeyValueObject, которая принимает массив объектов, где каждый объект имеет поля name и value. Функция должна вернуть объект, в котором ключи — это значения свойства name, а значения — это соответствующие свойства value.\\n",
+        "codeBlocks": [
+            {
+                "content": "function createKeyValueObject(arr) {  \n    return arr.reduce((acc, item) => {  \n        acc[item.name] = item.value;  \n        return acc;  \n    }, {});  \n}  \n  \n// Пример использования  \nconst data = [  \n    { name: 'width', value: 10 },  \n    { name: 'height', value: 20 },  \n    { name: 'test', value: 30 }  \n];  \n  \nconsole.log(createKeyValueObject(data)); // {width: 10, height: 20, test: 30}",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "45. splitPlayersBySquad",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Напишите функцию splitPlayersBySquad, которая принимает массив игроков и объект myPlayer. Функция должна разделить игроков на две группы:\\nИгроки, которые состоят в той же команде, что и myPlayer, или у которых значение squad равно null (группа \"sameOrNoSquad\").Игроки, у которых значение squad отличается от myPlayer.squad (группа \"otherSquad\").\\nФункция возвращает массив, где первый элемент — это группа других команд, а второй элемент — группа с теми, кто в той же команде или без команды.\\n",
+        "codeBlocks": [
+            {
+                "content": "function splitPlayersBySquad(players, myPlayer) {  \n    const otherSquad = [];  \n    const sameOrNoSquad = [];  \n  \n    players.forEach(player => {  \n        if (player.squad === myPlayer.squad || player.squad === null) {  \n            sameOrNoSquad.push(player);  \n        } else {  \n            otherSquad.push(player);  \n        }  \n    });  \n  \n    return [otherSquad, sameOrNoSquad];  \n}  \n  \nconst myPlayer = { id: 1, squad: 1 };  \n  \nconst players = [  \n    { id: 2, squad: 1 },  \n    { id: 3, squad: 1 },  \n    { id: 4, squad: null },  \n    { id: 5, squad: 2 },  \n    { id: 6, squad: 1 },  \n    { id: 7, squad: 2 }  \n];  \n  \nconsole.log(splitPlayersBySquad(players, myPlayer));  \n  \n// Ожидаемый результат:  \n// [  \n//   [{ id: 5, squad: 2 }, { id: 7, squad: 2 }],  \n//   [{ id: 2, squad: 1 }, { id: 3, squad: 1 }, { id: 4, squad: null }, { id: 6, squad: 1 }]  \n// ]",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "46. getTopCitiesByPopulation",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан массив объектов, содержащих информацию о городах, включая страну, название города и население. Необходимо сгруппировать города по странам и для каждой страны выбрать топ-3 города по населению. Если для страны доступно менее 3 городов, возвращаются все имеющиеся города.\\n",
+        "codeBlocks": [
+            {
+                "content": "function getTopCitiesByPopulation(data) {  \n    // Группировка городов по странам  \n    const groupedByCountry = data.reduce((acc, item) => {  \n        if (!acc[item.country]) {  \n            acc[item.country] = [];  \n        }  \n        acc[item.country].push(item);  \n        return acc;  \n    }, {});  \n  \n    // Получение топ-3 городов по населению для каждой страны  \n    const topCitiesByCountry = {};  \n  \n    for (const country in groupedByCountry) {  \n        topCitiesByCountry[country] = groupedByCountry[country]  \n            .sort((a, b) => b.population - a.population)  \n            .slice(0, 3);  \n    }  \n  \n    return topCitiesByCountry;  \n}  \n  \n// Пример данных  \nconst citiesData = [  \n    { country: 'USA', city: 'New York', population: 8419600 },  \n    { country: 'USA', city: 'Los Angeles', population: 3980400 },  \n    { country: 'USA', city: 'Chicago', population: 2716000 },  \n    { country: 'USA', city: 'Houston', population: 2328000 },  \n    { country: 'USA', city: 'Phoenix', population: 1690000 },  \n    { country: 'Canada', city: 'Toronto', population: 2930000 },  \n    { country: 'Canada', city: 'Montreal', population: 1760000 },  \n    { country: 'Japan', city: 'Tokyo', population: 13929286 },  \n    { country: 'Japan', city: 'Yokohama', population: 3726167 },  \n    { country: 'Japan', city: 'Osaka', population: 2698046 },  \n    { country: 'Japan', city: 'Nagoya', population: 2295638 },  \n    { country: 'Japan', city: 'Sapporo', population: 1952356 },  \n];  \n  \n// Пример использования функции  \nconst result = getTopCitiesByPopulation(citiesData);  \n  \nconsole.log(result);  \n  \n// Ожидаемый вывод:  \n// {  \n//     USA: [  \n//         { country: 'USA', city: 'New York', population: 8419600 },  \n//         { country: 'USA', city: 'Los Angeles', population: 3980400 },  \n//         { country: 'USA', city: 'Chicago', population: 2716000 }  \n//     ],  \n//     Canada: [  \n//         { country: 'Canada', city: 'Toronto', population: 2930000 },  \n//         { country: 'Canada', city: 'Montreal', population: 1760000 }  \n//     ],  \n//     Japan: [  \n//         { country: 'Japan', city: 'Tokyo', population: 13929286 },  \n//         { country: 'Japan', city: 'Yokohama', population: 3726167 },  \n//         { country: 'Japan', city: 'Osaka', population: 2698046 }  \n//     ]  \n// }",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "47. groupByAge",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Напишите функцию groupByAge, которая принимает массив объектов, где каждый объект содержит информацию о человеке (например, имя и возраст). Функция должна сгруппировать объекты по возрасту, возвращая объект, в котором ключи — это значения возраста, а значения — массивы объектов с данным возрастом.\\n",
+        "codeBlocks": [
+            {
+                "content": "function groupByAge(arr) {  \n    return arr.reduce((acc, item) => {  \n        // Если ключ (возраст) не существует, инициализируем его как пустой массив  \n        if (!acc[item.age]) {  \n            acc[item.age] = [];  \n        }  \n        // Добавляем текущий элемент в массив по ключу (возрасту)  \n        acc[item.age].push(item);  \n        return acc;  \n    }, {});  \n}  \n  \n// Пример использования  \nconst persons = [  \n    { name: 'Alex', age: 20 },  \n    { name: 'Lena', age: 25 },  \n    { name: 'Pavel', age: 20 }  \n];  \n  \nconsole.log(groupByAge(persons));  \n  \n// Ожидаемый результат:  \n// {  \n//     20: [{ name: 'Alex', age: 20 }, { name: 'Pavel', age: 20 }],  \n//     25: [{ name: 'Lena', age: 25 }]  \n// }",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "48. groupByType (+ modification)",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:\\nНапишите функцию groupByType, которая принимает массив объектов и возвращает объект, где ключи – это значения свойства type, а значения – массив объектов с этим типом.Напишите функцию countAndWeightByType, которая принимает тот же массив объектов, но возвращает объект, где ключи – значения свойства type, а значения – объект вида { count: количество объектов с данным типом, weight: суммарный вес этих объектов }.\\n",
+        "codeBlocks": [
+            {
+                "content": "// Часть 1: Группировка по типу, значение - массив объектов\nfunction groupByType(arr) {  \n    return arr.reduce((acc, obj) => {  \n        const key = obj.type;  \n        // Инициализируем пустым массивом, если ключ еще не существует  \n        if (!acc[key]) {  \n            acc[key] = [];  \n        }  \n        // Добавляем текущий объект в массив для этого типа  \n        acc[key].push(obj);  \n        return acc;  \n    }, {});  \n}  \n  \nconst arr = [  \n    { type: \"banana\", weight: 32 },  \n    { type: \"apple\", weight: 24 },  \n    { type: \"kiwi\", weight: 55 },  \n    { type: \"banana\", weight: 44 },  \n    { type: \"orange\", weight: 5 }  \n];  \n  \nconsole.log(groupByType(arr));  \n  \n// Ожидаемый вывод =>  \n// {  \n//     \"banana\": [{ type: \"banana\", weight: 32 }, { type: \"banana\", weight: 44 }],  \n//     \"apple\": [{ type: \"apple\", weight: 24 }],  \n//     \"kiwi\": [{ type: \"kiwi\", weight: 55 }],  \n//     \"orange\": [{ type: \"orange\", weight: 5 }]  \n// }  \n  \n// Часть 2: Группировка с подсчетом количества и суммарного веса  \nfunction countAndWeightByType(arr) {  \n    return arr.reduce((acc, obj) => {  \n        const key = obj.type;  \n        // Инициализация объекта с count и weight, если ключ еще не существует  \n        if (!acc[key]) {  \n            acc[key] = { count: 0, weight: 0 };  \n        }  \n        // Увеличиваем count и суммируем вес для текущего типа  \n        acc[key].count += 1;  \n        acc[key].weight += obj.weight;  \n        return acc;  \n    }, {});  \n}  \n  \nconsole.log(countAndWeightByType(arr));  \n  \n// Ожидаемый вывод =>  \n// {  \n//     \"banana\": { count: 2, weight: 76 },  \n//     \"apple\": { count: 1, weight: 24 },  \n//     \"kiwi\": { count: 1, weight: 55 },  \n//     \"orange\": { count: 1, weight: 5 }  \n// }",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "49. groupByDate",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дана коллекция операций, каждая операция содержит дату и сумму. Необходимо:\\nОтсортировать операции по дате в порядке возрастания.Сгруппировать операции по году.Преобразовать дату каждой операции в формат \"MM-DD\" и сохранить в сгруппированном объекте, где ключ – это год, а значение – массив дат в формате \"MM-DD\".\\n",
+        "codeBlocks": [
+            {
+                "content": "function groupByDate(operations) {  \n    // Сортируем операции по дате в порядке возрастания  \n    operations.sort((a, b) => new Date(a.date) - new Date(b.date));  \n  \n    // Группируем по году и преобразуем даты в формат MM-DD  \n    return operations.reduce((acc, operation) => {  \n        const [year, month, day] = operation.date.split(\"-\");  \n  \n        // Если года еще нет в объекте, добавляем его как пустой массив  \n        if (!acc[year]) {  \n            acc[year] = [];  \n        }  \n  \n        // Добавляем дату в формате MM-DD  \n        acc[year].push(`${month}-${day}`);  \n        return acc;  \n    }, {});  \n}  \n  \n// Пример использования  \nconst operations = [  \n    { \"date\": \"2017-07-31\", \"amount\": \"5422\" },  \n    { \"date\": \"2017-06-30\", \"amount\": \"5220\" },  \n    { \"date\": \"2017-05-31\", \"amount\": \"5365\" },  \n    { \"date\": \"2017-08-31\", \"amount\": \"5451\" },  \n    { \"date\": \"2017-09-30\", \"amount\": \"5303\" },  \n    { \"date\": \"2018-03-31\", \"amount\": \"5654\" },  \n    { \"date\": \"2017-10-31\", \"amount\": \"5509\" },  \n    { \"date\": \"2017-12-31\", \"amount\": \"5567\" },  \n    { \"date\": \"2018-01-31\", \"amount\": \"5597\" },  \n    { \"date\": \"2017-11-30\", \"amount\": \"5359\" },  \n    { \"date\": \"2018-02-28\", \"amount\": \"5082\" },  \n    { \"date\": \"2018-04-14\", \"amount\": \"2567\" }  \n];  \n  \nconsole.log(groupByDate(operations));  \n  \n// Ожидаемый вывод =>   \n// {  \n//     \"2017\": [  \n//         \"05-31\",  \n//         \"06-30\",  \n//         \"07-31\",  \n//         \"08-31\",  \n//         \"09-30\",  \n//         \"10-31\",  \n//         \"11-30\",  \n//         \"12-31\"  \n//     ],  \n//     \"2018\": [  \n//         \"01-31\",  \n//         \"02-28\",  \n//         \"03-31\",  \n//         \"04-14\"  \n//     ]  \n// }",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "50. sortByDate",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан массив объектов, где каждый объект содержит дату в формате 'DD.MM.YYYY'. Необходимо отсортировать массив по датам в порядке возрастания. Для этого можно преобразовать строки дат так, чтобы год, месяц и день шли в правильном порядке (например, YYYYMMDD), и затем выполнить сравнение.\\n",
+        "codeBlocks": [
+            {
+                "content": "let arr = [  \n    { date: '10.01.2017' },  \n    { date: '01.12.2002' },  \n    { date: '11.02.2021' },  \n    { date: '05.11.2016' },  \n];  \n  \nfunction sortByDate(array) {  \n    return array.sort((a, b) => {  \n        // Преобразуем дату в формат YYYYMMDD  \n        const dateA = a.date.split('.').reverse().join('');  \n        const dateB = b.date.split('.').reverse().join('');  \n        // Сравниваем преобразованные строки  \n        return dateA.localeCompare(dateB);  \n    });  \n}  \n  \nconst sortedArr = sortByDate(arr);  \nconsole.log(sortedArr);  \n  \n// Ожидаемый вывод:  \n// [  \n//     { date: '01.12.2002' },  \n//     { date: '05.11.2016' },  \n//     { date: '10.01.2017' },  \n//     { date: '11.02.2021' }  \n// ]",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "51. myFlat",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Напишите функцию myFlat, которая принимает вложенную структуру данных, состоящую из массивов, объектов и строк, и возвращает \"сплющенный\" массив строк, где каждая строка представляет путь к конечной строке, объединяя ключи объектов и элементы массивов с разделителем \"/\". Функция должна обходить все уровни вложенности и корректно формировать пути для строковых значений.\\n",
+        "codeBlocks": [
+            {
+                "content": "function myFlat(arr) {  \n    const result = [];  \n  \n    function traverse(node, path) {  \n        if (Array.isArray(node)) {  \n            for (let item of node) {  \n                traverse(item, path);  \n            }  \n        } else if (typeof node === 'object' && node !== null) {  \n            for (let key in node) {  \n                traverse(node[key], path ? `${path}/${key}` : key);  \n            }  \n        } else if (typeof node === 'string') {  \n            result.push(path ? `${path}/${node}` : node);  \n        }  \n    }  \n    traverse(arr, '');  \n    return result;  \n}",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "52. Battleships in a Board",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дана игровая доска, представленная двумерным массивом, где 'X' обозначает часть корабля, а '.' — пустую клетку. Корабли расположены по горизонтали или вертикали и не соприкасаются друг с другом. Необходимо посчитать количество кораблей на доске. Решение должно быть выполнено за один проход по доске без использования дополнительной памяти для хранения информации о посещённых клетках.\\n",
+        "codeBlocks": [
+            {
+                "content": "function countBattleships(board) {\n  let count = 0;\n  const rows = board.length;\n  if (rows === 0) return 0;\n  const cols = board[0].length;\n\n  for (let i = 0; i < rows; i++) {\n    for (let j = 0; j < cols; j++) {\n      if (board[i][j] === 'X') {\n        // Если сверху или слева есть 'X', значит, этот корабль уже посчитан\n        if (i > 0 && board[i - 1][j] === 'X') continue;\n        if (j > 0 && board[i][j - 1] === 'X') continue;\n        count++;\n      }\n    }\n  }\n\n  return count;\n}\n\n// Тест:\nconst board = [\n  ['X', '.', '.', 'X'],\n  ['.', '.', '.', 'X'],\n  ['.', '.', '.', 'X'],\n];\nconsole.log(countBattleships(board)); // 2\n",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "53. Rotate Image",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дана квадратная матрица, представляющая изображение, где каждый пиксель хранится в виде целого числа. Необходимо повернуть изображение на 90 градусов по часовой стрелке in-place. Для этого можно выполнить следующие шаги:\\nТранспонировать матрицу (заменить строки на столбцы).Развернуть (обратить порядок элементов) каждую строку.\\n",
+        "codeBlocks": [
+            {
+                "content": "function rotate(matrix) {  \n    const n = matrix.length;  \n  \n    // Транспонируем матрицу  \n    for (let i = 0; i < n; i++) {  \n        for (let j = i; j < n; j++) {  \n            [matrix[i][j], matrix[j][i]] = [matrix[j][i], matrix[i][j]];  \n        }  \n    }  \n    // Разворачиваем каждую строку  \n    for (let i = 0; i < n; i++) {  \n        matrix[i].reverse();  \n    }  \n}  \n  \n// Тест:  \nlet matrix = [  \n    [1, 2, 3],  \n    [4, 5, 6],  \n    [7, 8, 9],  \n];  \nrotate(matrix);  \n  \nconsole.log(matrix); // [[7, 4, 1], [8, 5, 2], [9, 6, 3]]",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "54. Spiral Matrix",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан двумерный массив (матрица). Необходимо вывести все его элементы по спирали, начиная с верхнего левого угла и двигаясь по часовой стрелке. Решение задачи предполагает использование четырех указателей (верх, низ, левый и правый), которые определяют текущие границы для обхода матрицы.\\n",
+        "codeBlocks": [
+            {
+                "content": "function spiralOrder(matrix) {  \n    const result = [];  \n    if (matrix.length === 0) return result;  \n  \n    let top = 0;  \n    let bottom = matrix.length - 1;  \n    let left = 0;  \n    let right = matrix[0].length - 1;  \n  \n    while (top <= bottom && left <= right) {  \n        // Обходим верхнюю строку слева направо  \n        for (let i = left; i <= right; i++) result.push(matrix[top][i]);  \n        top++;  \n  \n        // Обходим правый столбец сверху вниз  \n        for (let i = top; i <= bottom; i++) result.push(matrix[i][right]);  \n        right--;  \n  \n        // Обходим нижнюю строку справа налево, если еще осталась  \n        if (top <= bottom) {  \n            for (let i = right; i >= left; i--) result.push(matrix[bottom][i]);  \n            bottom--;  \n        }  \n  \n        // Обходим левый столбец снизу вверх, если еще осталась  \n        if (left <= right) {  \n            for (let i = bottom; i >= top; i--) result.push(matrix[i][left]);  \n            left++;  \n        }  \n    }  \n    return result;  \n}  \n  \n// Тест:  \nconst matrix = [  \n    [1, 2, 3],  \n    [4, 5, 6],  \n    [7, 8, 9],  \n];  \n  \nconsole.log(spiralOrder(matrix)); // [1, 2, 3, 6, 9, 8, 7, 4, 5]",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "55. Number of Islands",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дана двумерная сетка, где '1' представляет землю, а '0' — воду. Необходимо посчитать количество островов, где остров — это группа смежных единиц (соседство по вертикали и горизонтали). Решение основано на обходе в глубину (DFS), чтобы \"затопить\" остров и избежать повторного подсчёта.\\n",
+        "codeBlocks": [
+            {
+                "content": "function numIslands(grid) {  \n    if (grid.length === 0) return 0;  \n    const rows = grid.length;  \n    const cols = grid[0].length;  \n    let count = 0;  \n  \n    function dfs(i, j) {  \n        if (i < 0 || i >= rows || j < 0 || j >= cols || grid[i][j] === '0') return;  \n        grid[i][j] = '0'; // Помечаем как посещенное  \n        dfs(i + 1, j);  \n        dfs(i - 1, j);  \n        dfs(i, j + 1);  \n        dfs(i, j - 1);  \n    }  \n  \n    for (let i = 0; i < rows; i++) {  \n        for (let j = 0; j < cols; j++) {  \n            if (grid[i][j] === '1') {  \n                count++;  \n                dfs(i, j);  \n            }  \n        }  \n    }  \n    return count;  \n}  \n  \n// Примеры использования:  \nconst grid1 = [  \n    ['1', '1', '0', '0', '0'],  \n    ['1', '1', '0', '0', '0'],  \n    ['0', '0', '1', '0', '0'],  \n    ['0', '0', '0', '1', '1'],  \n];  \n  \nconsole.log(numIslands(grid1)); // Ожидаемый вывод: 3  \n  \nconst grid2 = [  \n    ['1', '0', '1', '0', '1'],  \n    ['0', '1', '0', '1', '0'],  \n    ['1', '0', '1', '0', '1'],  \n];  \nconsole.log(numIslands(grid2)); // Ожидаемый вывод: 8",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Лёгкие – средние (классические алгоритмические задачи, базовая работа с массивами)"
+        ],
+        "blockTitle": "56. Find The Celebrity",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан массив m, представляющий матрицу, где m[a][b] === 1 означает, что человек a знает человека b, а m[a][b] === 0 — не знает. Необходимо найти знаменитость — человека, которого знают все, но который не знает никого. Если знаменитость существует, вернуть её индекс, иначе вернуть -1.\\nРешение состоит из двух шагов:\\nПоиск кандидата:Инициализируем кандидата нулевым человеком. Проходим по всем остальным людям, и если кандидат знает другого человека, обновляем кандидата на этого человека.Проверка кандидата:Проверяем, что кандидат не знает никого, и что все остальные знают кандидата. Если условие не выполняется, знаменитости нет, возвращаем -1.\\n",
+        "codeBlocks": [
+            {
+                "content": "function getCelebrity(m) {  \n    const n = m.length;  \n    let candidate = 0;  \n  \n    // Шаг 1: Находим кандидата  \n    for (let i = 1; i < n; i++) {  \n        if (knows(candidate, i, m)) {  \n            candidate = i;  \n        }  \n    }  \n  \n    // Шаг 2: Проверяем кандидата  \n    for (let i = 0; i < n; i++) {  \n        if (i !== candidate && (knows(candidate, i, m) || !knows(i, candidate, m))) {  \n            return -1;  \n        }  \n    }  \n    return candidate;  \n}  \n  \nfunction knows(a, b, m) {  \n    return m[a][b] === 1;  \n}  \n  \nconst m1 = [  \n    [0, 1, 0],  \n    [0, 0, 0],  \n    [0, 1, 0],  \n];  \n  \nconsole.log(getCelebrity(m1)); // Ожидаемый вывод: 1  \n  \nconst m2 = [  \n    [0, 1, 1, 0],  \n    [0, 0, 1, 0],  \n    [0, 0, 0, 0],  \n    [0, 0, 1, 0],  \n];  \n  \nconsole.log(getCelebrity(m2)); // Ожидаемый вывод: 2  \n  \nconst m3 = [  \n    [0, 1],  \n    [1, 0],  \n];  \n  \nconsole.log(getCelebrity(m3)); // Ожидаемый вывод: -1 (нет знаменитости)",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Средние – сложные (задачи с более высоким алгоритмическим накалом)"
+        ],
+        "blockTitle": "57. Фильтрация, сортировка, преобразование и удаление дубликатов",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан массив объектов, где каждый объект содержит следующие свойства:\\nvalue: строка;order: число;expired: булево значение.\\nНеобходимо выполнить следующие шаги:\\nОтфильтровать объекты, оставив только те, у которых свойство expired равно false.Отсортировать отфильтрованные объекты по возрастанию значения свойства order.Для каждого оставшегося объекта перевернуть строку из свойства value.Объединить перевернутые строки в одну.Удалить повторяющиеся символы из объединенной строки, сохранив их порядок.Вернуть итоговую строку.\\n",
+        "codeBlocks": [
+            {
+                "content": "const data = [  \n    { value: 'abcd', order: 4, expired: false },  \n    { value: 'qwer', order: 2, expired: true },  \n    { value: 'xyz1', order: 1, expired: false },  \n    { value: 'abx2', order: 2, expired: false },  \n];  \n  \n// array methods  \nfunction filterAndSortData(data) {  \n    const validItems = data.filter(item => !item.expired);  \n  \n    validItems.sort((a, b) => a.order - b.order);  \n  \n    let concatenated = validItems.map(item => item.value.split('').reverse().join('')).join('');  \n  \n    return [...new Set(concatenated)].join('');  \n}  \n  \nconst result1 = filterAndSortData(data);  \nconsole.log(result1);",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Средние – сложные (задачи с более высоким алгоритмическим накалом)"
+        ],
+        "blockTitle": "58. Фильтрация, сортировка, преобразование и удаление дубликатов с использованием разных подходов",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан массив объектов с полями:\\nvalue — строка,order — число,expired — булевое значение.\\nНеобходимо выполнить следующие операции:\\nОтфильтровать объекты, оставив только те, у которых expired равно false.Отсортировать оставшиеся объекты по возрастанию значения свойства order.Для каждого объекта перевернуть строку из свойства value.Объединить перевернутые строки в одну строку.Удалить из полученной строки дубликаты символов, сохраняя порядок их первого появления.Вернуть итоговую строку.\\nРеализуйте решение задачи, используя различные подходы:\\nСтандартные методы массива.Решение с использованием Set и циклов.Решение с использованием метода reduce.\\n",
+        "codeBlocks": [
+            {
+                "content": "const input = [  \n    { value: 'abcd', order: 4, expired: false },  \n    { value: 'qwer', order: 2, expired: true },  \n    { value: 'xyz1', order: 1, expired: false },  \n    { value: 'abx2', order: 2, expired: false },  \n];  \n  \n// array methods  \nfunction generateResult(input) {  \n    const validItems = input.filter(item => !item.expired);  \n  \n    validItems.sort((a, b) => a.order - b.order);  \n  \n    let concatenated = validItems  \n        .map(item => item.value.split('').reverse().join(''))  \n        .join('');  \n  \n    return [...new Set(concatenated)].join('');  \n}  \n\nconst result1 = generateResult(input);  \nconsole.log(result1);  \n  \n// set  \nfunction generateResult2(input) {  \n    const filteredSortedItems = input  \n        .filter(item => !item.expired)  \n        .sort((a, b) => a.order - b.order);  \n  \n    const uniqueChars = new Set();  \n    let result = '';  \n  \n    for (const item of filteredSortedItems) {  \n        const reversedValue = item.value.split('').reverse().join('');  \n        for (const char of reversedValue) {  \n            if (!uniqueChars.has(char)) {  \n                uniqueChars.add(char);  \n                result += char;  \n            }  \n        }  \n    }  \n    return result;  \n}  \n  \nconst result2 = generateResult2(input);  \nconsole.log(result2);  \n  \n// reduce  \nfunction generateResult3(input) {  \n    return input  \n        .filter(item => !item.expired)  \n        .sort((a, b) => a.order - b.order)  \n        .reduce((acc, item) => {  \n            const reversed = item.value.split('').reverse().join('');  \n            for (const char of reversed) {  \n                if (!acc.seen.has(char)) {  \n                    acc.seen.add(char);  \n                    acc.result += char;  \n                }  \n            }  \n            return acc;  \n        }, { result: '', seen: new Set() }).result;  \n}  \n  \nconst result3 = generateResult3(input);  \nconsole.log(result3);",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Средние – сложные (задачи с более высоким алгоритмическим накалом)"
+        ],
+        "blockTitle": "59. Работа с массивом объектов: группировка и сортировка по году",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Напишите функцию, которая на вход принимает массив объектов с полями date и amount. Функция должна вернуть объект, в котором:\\nКлючи — это год, извлечённый из поля date каждого объекта.Значения — массивы объектов, относящихся к этому году, отсортированные по дате (в порядке возрастания).\\nПример входных данных:\\nАлгоритм решения:\\nПройтись по массиву и сгруппировать объекты по году, извлекая год из поля date.Для каждого года отсортировать массив объектов по дате.Вернуть итоговый объект.\\n",
+        "codeBlocks": [
+            {
+                "content": "const operations = [\n  { \"date\": \"2017-07-31\", \"amount\": \"5422\" },\n  { \"date\": \"2017-06-30\", \"amount\": \"5220\" },\n  { \"date\": \"2017-05-31\", \"amount\": \"5365\" },\n  { \"date\": \"2017-08-31\", \"amount\": \"5451\" },\n  { \"date\": \"2017-09-30\", \"amount\": \"5303\" },\n  { \"date\": \"2018-03-31\", \"amount\": \"5654\" },\n  { \"date\": \"2017-10-31\", \"amount\": \"5509\" },\n  { \"date\": \"2017-12-31\", \"amount\": \"5567\" },\n  { \"date\": \"2017-11-30\", \"amount\": \"5597\" },\n  { \"date\": \"2018-01-31\", \"amount\": \"5392\" },\n  { \"date\": \"2018-02-28\", \"amount\": \"5087\" },\n  { \"date\": \"2018-04-14\", \"amount\": \"2567\" }\n];",
+                "language": "js",
+                "isFoldable": false
+            },
+            {
+                "content": "function sortOperations(operations) {\n  const result = {};\n\n  // Группируем операции по году\n  operations.forEach(operation => {\n    const year = operation.date.split('-')[0];\n    if (!result[year]) {\n      result[year] = [];\n    }\n    result[year].push(operation);\n  });\n\n  // Сортируем операции в каждом году по возрастанию даты\n  Object.keys(result).forEach(year => {\n    result[year].sort((a, b) => new Date(a.date) - new Date(b.date));\n  });\n\n  return result;\n}\n\nconst operations = [\n  { \"date\": \"2017-07-31\", \"amount\": \"5422\" },\n  { \"date\": \"2017-06-30\", \"amount\": \"5220\" },\n  { \"date\": \"2017-05-31\", \"amount\": \"5365\" },\n  { \"date\": \"2017-08-31\", \"amount\": \"5451\" },\n  { \"date\": \"2017-09-30\", \"amount\": \"5303\" },\n  { \"date\": \"2018-03-31\", \"amount\": \"5654\" },\n  { \"date\": \"2017-10-31\", \"amount\": \"5509\" },\n  { \"date\": \"2017-12-31\", \"amount\": \"5567\" },\n  { \"date\": \"2017-11-30\", \"amount\": \"5597\" },\n  { \"date\": \"2018-01-31\", \"amount\": \"5392\" },\n  { \"date\": \"2018-02-28\", \"amount\": \"5087\" },\n  { \"date\": \"2018-04-14\", \"amount\": \"2567\" }\n];\n\nconst sortedOperations = sortOperations(operations);\nconsole.log(sortedOperations);",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Средние – сложные (задачи с более высоким алгоритмическим накалом)"
+        ],
+        "blockTitle": "60. Find All Duplicates in an Array",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан массив чисел, где каждый элемент находится в диапазоне от 1 до n (n — длина массива). Некоторые элементы могут повторяться. Необходимо найти все дубликаты, то есть те элементы, которые появляются дважды. Задачу можно решить, изменяя входной массив (in-place) или используя дополнительные структуры данных. Приведены несколько подходов:\\nПометка с помощью отрицания:Проходим по массиву и используем значение каждого элемента для вычисления индекса.Если элемент по этому индексу уже отрицательный, значит, текущий элемент уже встречался и является дубликатом.В конце возвращаем массив дубликатов.Сортировка с использованием обмена:Переставляем элементы так, чтобы каждый элемент оказался на позиции, соответствующей его значению.После перестановки элементы, не соответствующие индексу, являются дубликатами.Изменение массива как счётчика:Используем арифметические операции для подсчета вхождений, прибавляя значение длины массива к элементам.Элементы, значение которых превышает определённый порог, считаются повторяющимися.Использование Set:Простой подход с использованием коллекции Set для отслеживания уже встреченных элементов.Абсолют индексная маркировка:Аналогично методу с отрицанием, но с дополнительной проверкой и последующим восстановлением исходных значений массива.\\n",
+        "codeBlocks": [
+            {
+                "content": "// 1. Пометка с помощью отрицания  \nfunction findDuplicatesNegation(nums) {  \n    const duplicates = [];  \n    for (let i = 0; i < nums.length; i++) {  \n        const index = Math.abs(nums[i]) - 1;  \n        if (nums[index] < 0) {  \n            duplicates.push(index + 1);  \n        } else {  \n            nums[index] = -nums[index];  \n        }  \n    }  \n    // Восстанавливаем исходный массив  \n    for (let i = 0; i < nums.length; i++) {  \n        nums[i] = Math.abs(nums[i]);  \n    }  \n    return duplicates;  \n}  \n  \nconst nums1 = [4, 3, 2, 7, 8, 2, 3, 1];  \nconsole.log(findDuplicatesNegation(nums1));  \n  \n  \n// 2. Сортировка с использованием обмена  \nfunction findDuplicatesSwap(nums) {  \n    const duplicates = [];  \n    for (let i = 0; i < nums.length; i++) {  \n        while (nums[i] !== nums[nums[i] - 1]) {  \n            const temp = nums[i];  \n            nums[i] = nums[temp - 1];  \n            nums[temp - 1] = temp;  \n        }  \n    }  \n    for (let i = 0; i < nums.length; i++) {  \n        if (nums[i] !== i + 1) {  \n            duplicates.push(nums[i]);  \n        }  \n    }  \n    return duplicates;  \n}  \n  \nconst nums2 = [4, 3, 2, 7, 8, 2, 3, 1];  \nconsole.log(findDuplicatesSwap(nums2));  \n  \n  \n// 3. Изменение массива как счётчика  \nfunction findDuplicatesCounting(nums) {  \n    const duplicates = [];  \n    const n = nums.length;  \n    for (let i = 0; i < n; i++) {  \n        const index = (nums[i] - 1) % n;  \n        nums[index] += n;  \n    }  \n    for (let i = 0; i < n; i++) {  \n        if (nums[i] > 2 * n) {  \n            duplicates.push(i + 1);  \n        }  \n    }  \n    return duplicates;  \n}  \n  \nconst nums3 = [4, 3, 2, 7, 8, 2, 3, 1];  \nconsole.log(findDuplicatesCounting(nums3));  \n  \n  \n// 4. Использование Set  \nfunction findDuplicatesSet(nums) {  \n    const duplicates = [];  \n    const seen = new Set();  \n    for (const num of nums) {  \n        if (seen.has(num)) {  \n            duplicates.push(num);  \n        } else {  \n            seen.add(num);  \n        }  \n    }  \n    return duplicates;  \n}  \n  \nconst nums4 = [4, 3, 2, 7, 8, 2, 3, 1];  \nconsole.log(findDuplicatesSet(nums4));  \n  \n  \n// 5. Абсолют индексная маркировка  \nfunction findDuplicatesAbsoluteMarking(nums) {  \n    const duplicates = [];  \n    const n = nums.length;  \n    for (let i = 0; i < n; i++) {  \n        const index = Math.abs(nums[i]) - 1;  \n        if (nums[index] < 0) {  \n            duplicates.push(index + 1);  \n        } else {  \n            nums[index] *= -1;  \n        }  \n    }  \n    for (let i = 0; i < n; i++) {  \n        nums[i] = Math.abs(nums[i]);  \n    }  \n    return duplicates;  \n}  \n  \nconst nums5 = [4, 3, 2, 7, 8, 2, 3, 1];  \nconsole.log(findDuplicatesAbsoluteMarking(nums5));",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Средние – сложные (задачи с более высоким алгоритмическим накалом)"
+        ],
+        "blockTitle": "61. mergeIntervals",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан массив интервалов, где каждый интервал представлен массивом из двух чисел [start, end]. Необходимо объединить все пересекающиеся интервалы и вернуть новый массив, содержащий только объединенные интервалы.\\nАлгоритм решения:\\nЕсли входной массив пуст, возвращаем пустой массив.Сортируем интервалы по их начальным значениям.Инициализируем массив merged первым интервалом.Проходим по оставшимся интервалам и для каждого:Если текущий интервал пересекается с последним интервалом в merged (т.е. начало текущего интервала меньше или равно концу последнего объединенного интервала), обновляем конец последнего интервала как максимум из его текущего конца и конца текущего интервала.Если нет пересечения, добавляем текущий интервал в merged.Возвращаем массив merged.\\n",
+        "codeBlocks": [
+            {
+                "content": "const mergeIntervals = function(intervals) {  \n    if (intervals.length === 0) return [];  \n  \n    // Шаг 1: Сортируем интервалы по началу  \n    intervals.sort((a, b) => a[0] - b[0]);  \n  \n    // Шаг 2: Создаем массив для хранения объединенных интервалов  \n    const merged = [intervals[0]];  \n  \n    for (let i = 1; i < intervals.length; i++) {  \n        const lastMerged = merged[merged.length - 1];  \n        const current = intervals[i];  \n  \n        // Если текущий интервал пересекается с последним объединенным интервалом, объединяем их  \n        if (current[0] <= lastMerged[1]) {  \n            lastMerged[1] = Math.max(lastMerged[1], current[1]);  \n        } else {  \n            // Если нет пересечения, добавляем текущий интервал в результат  \n            merged.push(current);  \n        }  \n    }  \n    return merged;  \n};  \n  \n// Примеры использования  \nconst intervals1 = [[1, 3], [2, 6], [7, 8], [8, 10], [15, 18]];  \nconsole.log(mergeIntervals(intervals1)); // [[1, 6], [7, 10], [15, 18]]  \n  \nconst intervals2 = [[1, 4], [4, 5]];  \nconsole.log(mergeIntervals(intervals2)); // [[1, 5]]  \n  \nconst intervals3 = [[1, 4]];  \nconsole.log(mergeIntervals(intervals3)); // [[1, 4]]  \n  \nconst intervals4 = [];  \nconsole.log(mergeIntervals(intervals4)); // []",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Средние – сложные (задачи с более высоким алгоритмическим накалом)"
+        ],
+        "blockTitle": "62. countShips",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Дан одномерный массив, представляющий квадратное поле, где 1 обозначает часть корабля, а 0 — пустую клетку. Размер поля вычисляется как корень квадратный из длины массива. Необходимо посчитать количество кораблей, где корабль — это группа смежных единиц (соседство по вертикали и горизонтали). Решение предполагает преобразование одномерного массива в двумерный и применение обхода в глубину (DFS) для подсчёта и \"затопления\" кораблей.\\n",
+        "codeBlocks": [
+            {
+                "content": "function countShips(field) {  \n    const n = Math.sqrt(field.length);  \n    const grid = [];  \n    let index = 0;  \n  \n    // Преобразуем одномерный массив в двумерный массив (grid) размером n x n  \n    for (let i = 0; i < n; i++) {  \n        grid.push(field.slice(index, index + n));  \n        index += n;  \n    }  \n  \n    let count = 0;  \n  \n    // Функция DFS для обхода и \"затопления\" корабля  \n    function dfs(i, j) {  \n        if (i < 0 || i >= n || j < 0 || j >= n || grid[i][j] === 0) {  \n            return;  \n        }  \n        grid[i][j] = 0;  \n        dfs(i + 1, j);  \n        dfs(i - 1, j);  \n        dfs(i, j + 1);  \n        dfs(i, j - 1);  \n    }  \n  \n    // Проходим по всем клеткам поля и считаем корабли  \n    for (let i = 0; i < n; i++) {  \n        for (let j = 0; j < n; j++) {  \n            if (grid[i][j] === 1) {  \n                count++;  \n                dfs(i, j);  \n            }  \n        }  \n    }  \n    return count;  \n}  \n  \n// Пример 1: Поле размером 4x4  \nconst field1 = [  \n    0, 1, 0, 1,  \n    0, 0, 0, 1,  \n    0, 0, 0, 0,  \n    1, 1, 1, 0  \n];  \nconsole.log(countShips(field1)); // Ожидаемый вывод: 3  \n  \n// Пример 2: Поле размером 4x4 с другими кораблями  \nconst field2 = [  \n    0, 0, 0, 1,  \n    1, 0, 0, 1,  \n    0, 0, 0, 0,  \n    1, 1, 1, 0  \n];  \nconsole.log(countShips(field2)); // Ожидаемый вывод: 3  \n  \n// Пример 3: Поле размером 5x5  \nconst field3 = [  \n    1, 0, 0, 1, 0,  \n    0, 0, 0, 1, 0,  \n    1, 0, 0, 0, 0,  \n    0, 0, 1, 1, 0,  \n    1, 0, 0, 0, 0  \n];  \nconsole.log(countShips(field3)); // Ожидаемый вывод: 5\n",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    },
+    {
+        "pathTitles": [
+            "Средние – сложные (задачи с более высоким алгоритмическим накалом)"
+        ],
+        "blockTitle": "63. median of two sorted arrays",
+        "blockLevel": 3,
+        "textContent": "Постановка задачи:Даны два отсортированных массива nums1 и nums2. Необходимо найти медиану объединённого массива. Решение должно работать за логарифмическое время, что достигается с помощью поиска k-го элемента (с использованием подхода \"разделяй и властвуй\").\\nАлгоритм решения:\\nВычисляем общее количество элементов.Если общее количество нечетное, медианой будет элемент с индексом (totalLen / 2) + 1.Если количество четное, медиана – это среднее арифметическое двух центральных элементов.Для поиска k-го элемента используется функция getKth, которая сдвигает указатели в двух массивах, уменьшая искомое k.\\n",
+        "codeBlocks": [
+            {
+                "content": "function findMedianSortedArrays(nums1, nums2) {  \n    const totalLen = nums1.length + nums2.length;  \n    if (totalLen % 2 === 1) {  \n        return getKth(nums1, nums2, Math.floor(totalLen / 2) + 1);  \n    } else {  \n        return (  \n            (getKth(nums1, nums2, totalLen / 2) +  \n             getKth(nums1, nums2, totalLen / 2 + 1)) /  \n            2  \n        );  \n    }  \n}  \n  \nfunction getKth(nums1, nums2, k) {  \n    let index1 = 0, index2 = 0;  \n  \n    while (true) {  \n        // Если один из массивов исчерпан, возвращаем k-й элемент из второго массива  \n        if (index1 === nums1.length) return nums2[index2 + k - 1];  \n        if (index2 === nums2.length) return nums1[index1 + k - 1];  \n        if (k === 1) return Math.min(nums1[index1], nums2[index2]);  \n  \n        // Определяем новые индексы для сравнения  \n        const newIndex1 = Math.min(index1 + Math.floor(k / 2) - 1, nums1.length - 1);  \n        const newIndex2 = Math.min(index2 + Math.floor(k / 2) - 1, nums2.length - 1);  \n  \n        const pivot1 = nums1[newIndex1];  \n        const pivot2 = nums2[newIndex2];  \n  \n        if (pivot1 <= pivot2) {  \n            k -= newIndex1 - index1 + 1;  \n            index1 = newIndex1 + 1;  \n        } else {  \n            k -= newIndex2 - index2 + 1;  \n            index2 = newIndex2 + 1;  \n        }  \n    }  \n}  \n  \nconsole.log(findMedianSortedArrays([1, 3], [2])); // Ожидаемый вывод: 2.0  \nconsole.log(findMedianSortedArrays([1, 2], [3, 4])); // Ожидаемый вывод: 2.5  \nconsole.log(findMedianSortedArrays([0, 0], [0, 0])); // Ожидаемый вывод: 0.0  \nconsole.log(findMedianSortedArrays([], [1]));       // Ожидаемый вывод: 1.0  \nconsole.log(findMedianSortedArrays([2], []));       // Ожидаемый вывод: 2.0",
+                "language": "js",
+                "isFoldable": true
+            }
+        ]
+    }
+]
