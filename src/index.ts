@@ -5,7 +5,6 @@ import dotenv from "dotenv";
 import express from "express";
 import session from "express-session";
 import { createClient } from "redis";
-import { createClient as createWebDAVClient } from "webdav";
 import { isAuthenticated } from "./middleware/authMiddleware";
 import authRoutes from "./routes/auth";
 import contentRoutes from "./routes/content";
@@ -117,12 +116,13 @@ app.get("/api/webdav/list", isAuthenticated, async (req, res) => {
       .json({ message: "WebDAV service is not configured." });
   }
 
-  const webDAVClient = createWebDAVClient(webDAVUrl, {
-    username: webDAVUsername,
-    password: webDAVPassword,
-  });
-
   try {
+    const { createClient: createWebDAVClient } = await import("webdav");
+    const webDAVClient = createWebDAVClient(webDAVUrl, {
+      username: webDAVUsername,
+      password: webDAVPassword,
+    });
+
     // Проверяем, существует ли директория
     if (!(await webDAVClient.exists(directoryPath))) {
       return res
@@ -206,12 +206,13 @@ app.get("/api/webdav/file", isAuthenticated, async (req, res) => {
       .json({ message: "WebDAV service is not configured." });
   }
 
-  const webDAVClient = createWebDAVClient(webDAVUrl, {
-    username: webDAVUsername,
-    password: webDAVPassword,
-  });
-
   try {
+    const { createClient: createWebDAVClient } = await import("webdav");
+    const webDAVClient = createWebDAVClient(webDAVUrl, {
+      username: webDAVUsername,
+      password: webDAVPassword,
+    });
+
     // Проверяем, существует ли файл
     if (!(await webDAVClient.exists(filePath))) {
       return res.status(404).json({ message: `File not found: ${filePath}` });
@@ -272,12 +273,13 @@ app.get("/api/test-parser", isAuthenticated, async (req, res) => {
       .json({ message: "WebDAV service is not configured." });
   }
 
-  const webDAVClient = createWebDAVClient(webDAVUrl, {
-    username: webDAVUsername,
-    password: webDAVPassword,
-  });
-
   try {
+    const { createClient: createWebDAVClient } = await import("webdav");
+    const webDAVClient = createWebDAVClient(webDAVUrl, {
+      username: webDAVUsername,
+      password: webDAVPassword,
+    });
+
     if (!(await webDAVClient.exists(filePath))) {
       return res.status(404).json({ message: `File not found: ${filePath}` });
     }

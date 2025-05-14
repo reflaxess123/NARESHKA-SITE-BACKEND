@@ -1,6 +1,7 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import dotenv from "dotenv";
-import { createClient as createWebDAVClient, FileStat } from "webdav";
+// import { createClient as createWebDAVClient, FileStat } from "webdav"; // Old import
+import type { FileStat } from "webdav"; // New type-only import for FileStat
 import { parseMarkdownContent } from "../utils/markdownParser";
 
 dotenv.config(); // Для доступа к process.env
@@ -42,14 +43,17 @@ export async function updateContentFromWebDAV(
     return summary;
   }
 
-  const webDAVClient = createWebDAVClient(webDAVUrl, {
-    username: webDAVUsername,
-    password: webDAVPassword,
-  });
-
-  console.log(`Starting content update from WebDAV path: ${baseDirectoryPath}`);
-
   try {
+    const { createClient: createWebDAVClient } = await import("webdav"); // Dynamic import
+    const webDAVClient = createWebDAVClient(webDAVUrl, {
+      username: webDAVUsername,
+      password: webDAVPassword,
+    });
+
+    console.log(
+      `Starting content update from WebDAV path: ${baseDirectoryPath}`
+    );
+
     // Шаг 0: Удаление всех существующих ContentFile (и каскадно ContentBlock, UserContentProgress)
     console.log("Deleting all existing content from the database...");
     const deletedFilesResult = await prisma.contentFile.deleteMany({});
