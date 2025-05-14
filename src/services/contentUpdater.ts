@@ -98,7 +98,7 @@ export async function updateContentFromWebDAV(
           format: "text",
         })) as string;
 
-        const parsedResult = parseMarkdownContent(fileContent, filePath);
+        const parsedResult = await parseMarkdownContent(fileContent, filePath);
 
         // Поскольку все ContentFile были удалены в Шаге 0, мы всегда будем создавать новые.
         // Логика поиска и обновления ContentFile (if (contentFileEntry) { ... }) удалена.

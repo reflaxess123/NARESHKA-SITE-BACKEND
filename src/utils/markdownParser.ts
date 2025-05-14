@@ -1,7 +1,7 @@
-import * as MDAST from "mdast";
-import remarkParse from "remark-parse";
-import { unified } from "unified";
-import { Node } from "unist";
+import type * as MDAST from "mdast";
+// import remarkParse from "remark-parse";
+// import { unified } from "unified";
+import type { Node } from "unist";
 
 // Интерфейсы для структурированных данных
 
@@ -84,10 +84,13 @@ const extractUrlsFromAstNode = (node: Node): string[] => {
   return urls;
 };
 
-export function parseMarkdownContent(
+export async function parseMarkdownContent(
   markdownContent: string,
   filePath: string
-): ParseMarkdownResult {
+): Promise<ParseMarkdownResult> {
+  const { unified } = await import("unified");
+  const { default: remarkParse } = await import("remark-parse");
+
   const processor = unified().use(remarkParse);
   const ast = processor.parse(markdownContent);
 

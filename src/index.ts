@@ -288,7 +288,7 @@ app.get("/api/test-parser", isAuthenticated, async (req, res) => {
       format: "text",
     })) as string;
 
-    const parsedResult = parseMarkdownContent(fileContent, filePath);
+    const parsedResult = await parseMarkdownContent(fileContent, filePath);
 
     res.status(200).json(parsedResult);
   } catch (error: any) {
