@@ -12,6 +12,59 @@ declare module "express-session" {
   }
 }
 
+/**
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     summary: Регистрация нового пользователя
+ *     description: Создает нового пользователя с email и паролем, автоматически авторизует
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: Email пользователя
+ *                 example: "user@example.com"
+ *               password:
+ *                 type: string
+ *                 description: Пароль пользователя
+ *                 example: "yourpassword"
+ *     responses:
+ *       201:
+ *         description: Пользователь успешно зарегистрирован
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "User registered successfully"
+ *                 userId:
+ *                   type: number
+ *                   example: 1
+ *       400:
+ *         description: Неверные данные или пользователь уже существует
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Внутренняя ошибка сервера
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // Роут для регистрации
 router.post("/register", async (req, res) => {
   const { email, password } = req.body;
@@ -53,6 +106,65 @@ router.post("/register", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: Вход пользователя
+ *     description: Аутентифицирует пользователя по email и паролю, создает сессию
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: Email пользователя
+ *                 example: "user@example.com"
+ *               password:
+ *                 type: string
+ *                 description: Пароль пользователя
+ *                 example: "yourpassword"
+ *     responses:
+ *       200:
+ *         description: Успешный вход
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Login successful"
+ *                 userId:
+ *                   type: number
+ *                   example: 1
+ *       400:
+ *         description: Отсутствуют email или пароль
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Неверные учетные данные
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Внутренняя ошибка сервера
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // Роут для входа
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
@@ -88,6 +200,31 @@ router.post("/login", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /auth/logout:
+ *   post:
+ *     summary: Выход пользователя
+ *     description: Завершает сессию пользователя и удаляет cookie
+ *     tags: [Authentication]
+ *     responses:
+ *       200:
+ *         description: Успешный выход
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Logout successful"
+ *       500:
+ *         description: Ошибка при завершении сессии
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // Роут для выхода
 router.post("/logout", (req, res) => {
   const cookieName = "connect.sid"; // Имя cookie по умолчанию для express-session

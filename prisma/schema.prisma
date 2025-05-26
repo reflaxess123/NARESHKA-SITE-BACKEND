@@ -17,6 +17,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   progress  UserContentProgress[]
+  theoryProgress UserTheoryProgress[]
 }
 
 // Модели для парсинга контента из WebDAV
@@ -70,4 +71,62 @@ model UserContentProgress {
 
   @@unique([userId, blockId])
   @@index([blockId])
+}
+
+// Модели для теоретических карточек из Anki
+model TheoryCard {
+  id              String                 @id @default(cuid())
+  ankiGuid        String                 @unique // GUID из Anki
+  cardType        String                 // "Простая"
+  deck            String                 // "СБОРНИК::JS ТЕОРИЯ"
+  category        String                 // "JS ТЕОРИЯ" (извлекается из deck)
+  subCategory     String?                // "Операторы", "Область видимости" и т.д.
+  questionBlock   String                 // HTML контент вопроса
+  answerBlock     String                 // HTML контент ответа
+  tags            String[]               @default([])
+  orderIndex      Int                    @default(0) // Порядок в файле импорта
+  
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  progressEntries UserTheoryProgress[]
+
+  @@index([category])
+  @@index([deck])
+}
+
+model UserTheoryProgress {
+  id           String        @id @default(cuid())
+  userId       Int
+  cardId       String
+  
+  // Существующие поля (сохраняем для обратной совместимости)
+  solvedCount  Int           @default(0)
+  
+  // Новые поля для интервального повторения
+  easeFactor   Decimal       @default(2.50) @db.Decimal(3,2)
+  interval     Int           @default(1) // в днях
+  dueDate      DateTime?     // когда карточка должна быть показана
+  reviewCount  Int           @default(0) // общее количество повторений
+  lapseCount   Int           @default(0) // количество забываний
+  cardState    CardState     @default(NEW)
+  learningStep Int           @default(0) // текущий шаг изучения
+  lastReviewDate DateTime?   // дата последнего повторения
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  card         TheoryCard    @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@unique([userId, cardId])
+  @@index([cardId])
+  @@index([dueDate])
+  @@index([cardState])
+}
+
+enum CardState {
+  NEW
+  LEARNING
+  REVIEW
+  RELEARNING
 } 

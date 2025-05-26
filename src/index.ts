@@ -4,10 +4,15 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import session from "express-session";
+import multer from "multer";
 import { createClient } from "redis";
+import swaggerUi from "swagger-ui-express";
+import { specs } from "./config/swagger";
 import { isAuthenticated } from "./middleware/authMiddleware";
 import authRoutes from "./routes/auth";
 import contentRoutes from "./routes/content";
+import theoryRoutes from "./routes/theory";
+import { importAnkiCards } from "./services/ankiImporter";
 import { updateContentFromWebDAV } from "./services/contentUpdater";
 import { parseMarkdownContent } from "./utils/markdownParser";
 
@@ -58,6 +63,32 @@ app.use(
 
 app.use(express.json());
 
+// Swagger UI
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(specs, {
+    explorer: true,
+    customCss: ".swagger-ui .topbar { display: none }",
+    customSiteTitle: "Nareshka API Documentation",
+  })
+);
+
+/**
+ * @swagger
+ * /:
+ *   get:
+ *     summary: Базовый endpoint
+ *     tags: [General]
+ *     responses:
+ *       200:
+ *         description: Приветственное сообщение
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: "Hello World!"
+ */
 // Базовый роут
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -69,6 +100,43 @@ app.use("/auth", authRoutes);
 // Роуты для контента
 app.use("/api/content", contentRoutes);
 
+// Роуты для теории
+app.use("/api/theory", theoryRoutes);
+
+/**
+ * @swagger
+ * /api/profile:
+ *   get:
+ *     summary: Получение профиля пользователя
+ *     tags: [User]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Данные профиля пользователя
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Не авторизован
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Пользователь не найден
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Внутренняя ошибка сервера
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // Пример защищенного роута
 app.get("/api/profile", isAuthenticated, async (req, res) => {
   // Если мы здесь, значит middleware isAuthenticated пропустил запрос (пользователь аутентифицирован)
@@ -92,6 +160,57 @@ app.get("/api/profile", isAuthenticated, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/webdav/list:
+ *   get:
+ *     summary: Получение списка файлов из WebDAV директории
+ *     description: Возвращает рекурсивный список всех файлов из указанной директории WebDAV
+ *     tags: [WebDAV]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: directoryPath
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Полный путь к директории на WebDAV сервере
+ *         example: "/obsval/FrontEnd/SBORNICK/"
+ *     responses:
+ *       200:
+ *         description: Список файлов из директории
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/WebDAVFile'
+ *       400:
+ *         description: Отсутствует параметр directoryPath
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Пользователь не аутентифицирован
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Директория не найдена
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Ошибка WebDAV сервиса или внутренняя ошибка
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // Новый эндпоинт для чтения файлов с WebDAV
 app.get("/api/webdav/list", isAuthenticated, async (req, res) => {
   const directoryPath = req.query.directoryPath as string;
@@ -183,6 +302,65 @@ app.get("/api/webdav/list", isAuthenticated, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/webdav/file:
+ *   get:
+ *     summary: Получение содержимого файла с WebDAV
+ *     description: Возвращает содержимое конкретного файла с WebDAV сервера
+ *     tags: [WebDAV]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: filePath
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Полный путь к файлу на WebDAV сервере
+ *         example: "/obsval/FrontEnd/SBORNICK/JS/Array.md"
+ *     responses:
+ *       200:
+ *         description: Содержимое файла
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *           text/markdown:
+ *             schema:
+ *               type: string
+ *           application/json:
+ *             schema:
+ *               type: object
+ *           application/octet-stream:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       400:
+ *         description: Отсутствует параметр filePath
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Пользователь не аутентифицирован
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Файл не найден
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Ошибка WebDAV сервиса или внутренняя ошибка
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // Эндпоинт для получения содержимого конкретного файла с WebDAV
 app.get("/api/webdav/file", isAuthenticated, async (req, res) => {
   const filePath = req.query.filePath as string;
@@ -304,6 +482,41 @@ app.get("/api/test-parser", isAuthenticated, async (req, res) => {
   }
 });
 
+// Настройка multer для загрузки файлов
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+});
+
+/**
+ * @swagger
+ * /api/admin/update-content:
+ *   post:
+ *     summary: Обновление контента из WebDAV
+ *     description: Запускает процесс обновления контента из WebDAV, парсит файлы и сохраняет в базу данных
+ *     tags: [Admin]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Контент успешно обновлен
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UpdateContentResponse'
+ *       401:
+ *         description: Не авторизован
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Ошибка обновления контента
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UpdateContentResponse'
+ */
 // --- Новый эндпоинт для запуска обновления контента из WebDAV ---
 app.post("/api/admin/update-content", isAuthenticated, async (req, res) => {
   console.log("Received request to update content from WebDAV.");
@@ -331,8 +544,121 @@ app.post("/api/admin/update-content", isAuthenticated, async (req, res) => {
     });
   }
 });
-// --- Конец нового эндпоинта ---
 
+/**
+ * @swagger
+ * /api/admin/import-anki:
+ *   post:
+ *     summary: Импорт карточек из Anki файла
+ *     description: Импортирует теоретические карточки из TSV файла экспорта Anki
+ *     tags: [Admin]
+ *     security:
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               ankiFile:
+ *                 type: string
+ *                 format: binary
+ *                 description: Anki файл в формате TSV (.txt)
+ *     responses:
+ *       200:
+ *         description: Импорт успешно завершен
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ImportSummary'
+ *       400:
+ *         description: Файл не предоставлен
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Не авторизован
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Ошибка импорта
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ImportSummary'
+ */
+// Endpoint для импорта Anki файла
+app.post(
+  "/api/admin/import-anki",
+  isAuthenticated,
+  upload.single("ankiFile"),
+  async (req, res) => {
+    console.log("Received request to import Anki cards.");
+
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          status: "Failed: No file provided",
+          message: "Please upload an Anki export file (.txt)",
+        });
+      }
+
+      const fileContent = req.file.buffer.toString("utf-8");
+      const summary = await importAnkiCards(fileContent);
+
+      if (summary.status.startsWith("Failed")) {
+        console.error("Anki import failed:", summary);
+        return res.status(500).json(summary);
+      }
+
+      console.log("Anki import successful:", summary);
+      res.status(200).json(summary);
+    } catch (error: any) {
+      console.error("Critical error during Anki import:", error);
+      res.status(500).json({
+        status: "Failed: Critical error in endpoint",
+        message: error.message,
+        errors: [{ error: error.message }],
+      });
+    }
+  }
+);
+
+/**
+ * @swagger
+ * /api/content/categories:
+ *   get:
+ *     summary: Получение иерархического списка категорий контента
+ *     description: Возвращает список основных категорий и их подкатегорий
+ *     tags: [Content]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Иерархический список категорий
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/ContentCategory'
+ *       401:
+ *         description: Пользователь не аутентифицирован
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Ошибка получения категорий
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // НОВЫЙ ЭНДПОИНТ для иерархического списка категорий
 app.get("/api/content/categories", isAuthenticated, async (req, res) => {
   try {

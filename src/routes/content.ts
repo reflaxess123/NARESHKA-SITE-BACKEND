@@ -5,6 +5,99 @@ import { isAuthenticated } from "../middleware/authMiddleware";
 const prisma = new PrismaClient();
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/content/blocks:
+ *   get:
+ *     summary: Получение списка блоков контента
+ *     description: Возвращает список блоков контента с пагинацией, фильтрацией и поиском
+ *     tags: [Content]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Номер страницы
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 10
+ *         description: Количество элементов на странице
+ *       - in: query
+ *         name: webdavPath
+ *         schema:
+ *           type: string
+ *         description: Часть пути к файлу WebDAV для поиска
+ *         example: "SBORNICK/JS/Array"
+ *       - in: query
+ *         name: mainCategory
+ *         schema:
+ *           type: string
+ *         description: Основная категория контента
+ *         example: "JS"
+ *       - in: query
+ *         name: subCategory
+ *         schema:
+ *           type: string
+ *         description: Подкатегория контента
+ *         example: "Array"
+ *       - in: query
+ *         name: filePathId
+ *         schema:
+ *           type: string
+ *         description: ID файла для фильтрации блоков
+ *       - in: query
+ *         name: q
+ *         schema:
+ *           type: string
+ *         description: Строка для полнотекстового поиска
+ *         example: "useEffect hook"
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           enum: [orderInFile, blockLevel, createdAt, updatedAt, file.webdavPath]
+ *           default: orderInFile
+ *         description: Поле для сортировки
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: asc
+ *         description: Направление сортировки
+ *     responses:
+ *       200:
+ *         description: Список блоков контента
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ContentBlocksList'
+ *       400:
+ *         description: Неверные параметры запроса
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Пользователь не аутентифицирован
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Внутренняя ошибка сервера
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // GET /api/content/blocks - Получение списка блоков контента с пагинацией и фильтрацией
 router.get("/blocks", isAuthenticated, async (req, res) => {
   const userId = req.session.userId; // Получаем ID текущего пользователя
@@ -164,6 +257,48 @@ router.get("/blocks", isAuthenticated, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/content/blocks/{id}:
+ *   get:
+ *     summary: Получение конкретного блока контента
+ *     description: Возвращает детальную информацию о блоке контента по его ID
+ *     tags: [Content]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID блока контента
+ *     responses:
+ *       200:
+ *         description: Блок контента найден
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ContentBlock'
+ *       401:
+ *         description: Пользователь не аутентифицирован
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Блок контента не найден
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Внутренняя ошибка сервера
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // GET /api/content/blocks/:id - Получение конкретного блока контента по ID
 router.get("/blocks/:id", isAuthenticated, async (req, res) => {
   const { id } = req.params;
@@ -201,6 +336,69 @@ router.get("/blocks/:id", isAuthenticated, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/content/blocks/{blockId}/progress:
+ *   patch:
+ *     summary: Обновление прогресса пользователя по блоку
+ *     description: Увеличивает или уменьшает счетчик решений для блока контента
+ *     tags: [Content]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: blockId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID блока контента
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ContentProgressUpdate'
+ *           examples:
+ *             increment:
+ *               summary: Увеличить счетчик
+ *               value:
+ *                 action: "increment"
+ *             decrement:
+ *               summary: Уменьшить счетчик
+ *               value:
+ *                 action: "decrement"
+ *     responses:
+ *       200:
+ *         description: Прогресс успешно обновлен
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ContentProgressResponse'
+ *       400:
+ *         description: Неверное действие
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Пользователь не аутентифицирован
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Блок контента не найден
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Ошибка при обновлении прогресса
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // PATCH /api/content/blocks/:blockId/progress - Обновление прогресса пользователя по блоку
 router.patch("/blocks/:blockId/progress", isAuthenticated, async (req, res) => {
   const userId = req.session.userId;
