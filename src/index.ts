@@ -34,7 +34,11 @@ const app = express();
 app.set("trust proxy", 1); // Доверяем первому прокси (Nginx)
 
 const corsOptions = {
-  origin: ["https://nareshka.site", "http://localhost:5173"],
+  origin: [
+    "https://nareshka.site",
+    "https://v2.nareshka.site",
+    "http://localhost:5173",
+  ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
