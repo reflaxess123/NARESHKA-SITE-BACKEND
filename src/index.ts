@@ -7,14 +7,18 @@ import session from "express-session";
 import multer from "multer";
 import { createClient } from "redis";
 import swaggerUi from "swagger-ui-express";
+import { createServer } from "http";
 import { specs } from "./config/swagger";
 import { isAuthenticated } from "./middleware/authMiddleware";
 import authRoutes from "./routes/auth";
 import contentRoutes from "./routes/content";
 import theoryRoutes from "./routes/theory";
+import chatRoutes from "./routes/chat";
+import statsRoutes from "./routes/stats";
 import { importAnkiCards } from "./services/ankiImporter";
 import { updateContentFromWebDAV } from "./services/contentUpdater";
 import { parseMarkdownContent } from "./utils/markdownParser";
+import { SocketService } from "./services/socketService";
 
 dotenv.config();
 
@@ -106,6 +110,12 @@ app.use("/api/content", contentRoutes);
 
 // Роуты для теории
 app.use("/api/theory", theoryRoutes);
+
+// Роуты для чата
+app.use("/api/chat", chatRoutes);
+
+// Роуты для статистики
+app.use("/api/stats", statsRoutes);
 
 /**
  * @swagger
@@ -698,8 +708,15 @@ app.get("/api/content/categories", isAuthenticated, async (req, res) => {
   }
 });
 
-app.listen(port, () => {
+// Создаем HTTP сервер для Socket.IO
+const server = createServer(app);
+
+// Инициализируем WebSocket сервис
+const socketService = new SocketService(server);
+
+server.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
+  console.log(`WebSocket server ready for chat connections`);
 });
 
 // Обработка завершения работы
