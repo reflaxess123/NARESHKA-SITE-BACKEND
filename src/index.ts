@@ -4,21 +4,22 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import session from "express-session";
+import { createServer } from "http";
 import multer from "multer";
 import { createClient } from "redis";
 import swaggerUi from "swagger-ui-express";
-import { createServer } from "http";
 import { specs } from "./config/swagger";
 import { isAuthenticated } from "./middleware/authMiddleware";
+import adminRoutes from "./routes/admin";
 import authRoutes from "./routes/auth";
-import contentRoutes from "./routes/content";
-import theoryRoutes from "./routes/theory";
 import chatRoutes from "./routes/chat";
+import contentRoutes from "./routes/content";
 import statsRoutes from "./routes/stats";
+import theoryRoutes from "./routes/theory";
 import { importAnkiCards } from "./services/ankiImporter";
 import { updateContentFromWebDAV } from "./services/contentUpdater";
-import { parseMarkdownContent } from "./utils/markdownParser";
 import { SocketService } from "./services/socketService";
+import { parseMarkdownContent } from "./utils/markdownParser";
 
 dotenv.config();
 
@@ -117,6 +118,9 @@ app.use("/api/chat", chatRoutes);
 // Роуты для статистики
 app.use("/api/stats", statsRoutes);
 
+// Роуты для администрирования
+app.use("/api/admin", adminRoutes);
+
 /**
  * @swagger
  * /api/profile:
@@ -159,7 +163,7 @@ app.get("/api/profile", isAuthenticated, async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { email: true, id: true, createdAt: true }, // Выбираем только нужные поля
+      select: { email: true, id: true, role: true, createdAt: true }, // Добавляем role
     });
 
     if (!user) {
@@ -649,8 +653,6 @@ app.post(
  *     summary: Получение иерархического списка категорий контента
  *     description: Возвращает список основных категорий и их подкатегорий
  *     tags: [Content]
- *     security:
- *       - cookieAuth: []
  *     responses:
  *       200:
  *         description: Иерархический список категорий
@@ -660,12 +662,6 @@ app.post(
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/ContentCategory'
- *       401:
- *         description: Пользователь не аутентифицирован
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Ошибка получения категорий
  *         content:
@@ -674,7 +670,7 @@ app.post(
  *               $ref: '#/components/schemas/Error'
  */
 // НОВЫЙ ЭНДПОИНТ для иерархического списка категорий
-app.get("/api/content/categories", isAuthenticated, async (req, res) => {
+app.get("/api/content/categories", async (req, res) => {
   try {
     const files = await prisma.contentFile.findMany({
       select: {

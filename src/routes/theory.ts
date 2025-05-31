@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import express from "express";
-import { isAuthenticated } from "../middleware/authMiddleware";
+import { attachUserRole } from "../middleware/roleMiddleware";
 import { SpacedRepetitionService } from "../services/spacedRepetition";
 
 const prisma = new PrismaClient();
@@ -13,8 +13,6 @@ const spacedRepetitionService = new SpacedRepetitionService();
  *   get:
  *     summary: Получение списка теоретических карточек
  *     tags: [Theory Cards]
- *     security:
- *       - cookieAuth: []
  *     parameters:
  *       - in: query
  *         name: page
@@ -67,7 +65,7 @@ const spacedRepetitionService = new SpacedRepetitionService();
  *         schema:
  *           type: boolean
  *           default: false
- *         description: Показывать только неизученные карточки (solvedCount = 0)
+ *         description: Показывать только неизученные карточки (только для авторизованных)
  *     responses:
  *       200:
  *         description: Список карточек с пагинацией
@@ -81,12 +79,6 @@ const spacedRepetitionService = new SpacedRepetitionService();
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *       401:
- *         description: Не авторизован
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Внутренняя ошибка сервера
  *         content:
@@ -95,8 +87,9 @@ const spacedRepetitionService = new SpacedRepetitionService();
  *               $ref: '#/components/schemas/Error'
  */
 // GET /api/theory/cards - Получение списка карточек теории с пагинацией и фильтрацией
-router.get("/cards", isAuthenticated, async (req, res) => {
+router.get("/cards", attachUserRole, async (req, res) => {
   const userId = req.session.userId;
+  const isAuthenticated = req.userRole !== "GUEST";
 
   const {
     page = "1",
@@ -179,8 +172,8 @@ router.get("/cards", isAuthenticated, async (req, res) => {
     ];
   }
 
-  // Фильтрация только неизученных карточек
-  if (onlyUnstudied === "true" && userId) {
+  // Фильтрация только неизученных карточек (только для авторизованных)
+  if (onlyUnstudied === "true" && isAuthenticated && userId) {
     where.progressEntries = {
       none: {
         userId: userId,
@@ -198,48 +191,88 @@ router.get("/cards", isAuthenticated, async (req, res) => {
   ) {
     orderBy[sortBy as string] = sortOrder === "desc" ? "desc" : "asc";
   } else {
-    orderBy.orderIndex = "asc";
+    orderBy.orderIndex = "asc"; // По умолчанию
   }
 
   try {
-    const cardsData = await prisma.theoryCard.findMany({
-      where,
-      skip: offset,
-      take: limitNum,
-      orderBy,
-      include: {
-        progressEntries: {
-          where: { userId: userId || -1 },
-          select: { solvedCount: true },
+    // Основная структура включения для запроса
+    const include: any = {};
+
+    // Добавляем прогресс только для авторизованных пользователей
+    if (isAuthenticated && userId) {
+      include.progressEntries = {
+        where: { userId: userId },
+        select: {
+          id: true,
+          solvedCount: true,
+          easeFactor: true,
+          interval: true,
+          dueDate: true,
+          reviewCount: true,
+          lapseCount: true,
+          cardState: true,
+          learningStep: true,
+          lastReviewDate: true,
+          createdAt: true,
+          updatedAt: true,
         },
-      },
-    });
-
-    const cards = cardsData.map((card) => {
-      const { progressEntries, ...restOfCard } = card;
-      return {
-        ...restOfCard,
-        currentUserSolvedCount:
-          progressEntries && progressEntries.length > 0
-            ? progressEntries[0].solvedCount
-            : 0,
       };
+    }
+
+    const [cards, totalCount] = await Promise.all([
+      prisma.theoryCard.findMany({
+        where,
+        include,
+        orderBy,
+        skip: offset,
+        take: limitNum,
+      }),
+      prisma.theoryCard.count({ where }),
+    ]);
+
+    const result = cards.map((card) => {
+      const baseCard = {
+        id: card.id,
+        ankiGuid: card.ankiGuid,
+        cardType: card.cardType,
+        deck: card.deck,
+        category: card.category,
+        subCategory: card.subCategory,
+        questionBlock: card.questionBlock,
+        answerBlock: card.answerBlock,
+        tags: card.tags,
+        orderIndex: card.orderIndex,
+        createdAt: card.createdAt,
+        updatedAt: card.updatedAt,
+      };
+
+      // Добавляем прогресс только для авторизованных
+      if (isAuthenticated && "progressEntries" in card) {
+        return {
+          ...baseCard,
+          progressEntries: card.progressEntries,
+        };
+      }
+
+      return baseCard;
     });
 
-    const totalCards = await prisma.theoryCard.count({ where });
+    const totalPages = Math.ceil(totalCount / limitNum);
 
     res.status(200).json({
-      data: cards,
+      cards: result,
       pagination: {
         page: pageNum,
         limit: limitNum,
-        totalItems: totalCards,
-        totalPages: Math.ceil(totalCards / limitNum),
+        total: totalCount,
+        totalPages,
+        hasNext: pageNum < totalPages,
+        hasPrev: pageNum > 1,
       },
     });
   } catch (error) {
     console.error("Error fetching theory cards:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ error: "Failed to fetch theory cards" });
   }
 });
 
@@ -302,7 +335,7 @@ router.get("/cards", isAuthenticated, async (req, res) => {
  *               $ref: '#/components/schemas/Error'
  */
 // GET /api/theory/cards/due - Получение карточек к повторению
-router.get("/cards/due", isAuthenticated, async (req, res) => {
+router.get("/cards/due", attachUserRole, async (req, res) => {
   const userId = req.session.userId;
   const {
     limit = "20",
@@ -311,8 +344,11 @@ router.get("/cards/due", isAuthenticated, async (req, res) => {
     includeReview = "true",
   } = req.query;
 
-  if (!userId) {
-    return res.status(401).json({ message: "User not authenticated" });
+  // Проверяем авторизацию для работы с прогрессом
+  if (req.userRole === "GUEST" || !userId) {
+    return res.status(401).json({
+      message: "Требуется авторизация для получения карточек к повторению",
+    });
   }
 
   const limitNum = parseInt(limit as string, 10);
@@ -343,9 +379,8 @@ router.get("/cards/due", isAuthenticated, async (req, res) => {
  * /api/theory/cards/{id}:
  *   get:
  *     summary: Получение конкретной теоретической карточки
+ *     description: Возвращает детальную информацию о карточке теории по её ID. Для авторизованных пользователей включает прогресс.
  *     tags: [Theory Cards]
- *     security:
- *       - cookieAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -360,12 +395,6 @@ router.get("/cards/due", isAuthenticated, async (req, res) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/TheoryCard'
- *       401:
- *         description: Не авторизован
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: Карточка не найдена
  *         content:
@@ -380,35 +409,69 @@ router.get("/cards/due", isAuthenticated, async (req, res) => {
  *               $ref: '#/components/schemas/Error'
  */
 // GET /api/theory/cards/:id - Получение конкретной карточки по ID
-router.get("/cards/:id", isAuthenticated, async (req, res) => {
+router.get("/cards/:id", attachUserRole, async (req, res) => {
   const { id } = req.params;
   const userId = req.session.userId;
+  const isAuthenticated = req.userRole !== "GUEST";
 
   try {
+    // Основная структура включения для запроса
+    const include: any = {};
+
+    // Добавляем прогресс только для авторизованных пользователей
+    if (isAuthenticated && userId) {
+      include.progressEntries = {
+        where: { userId: userId },
+        select: {
+          id: true,
+          solvedCount: true,
+          easeFactor: true,
+          interval: true,
+          dueDate: true,
+          reviewCount: true,
+          lapseCount: true,
+          cardState: true,
+          learningStep: true,
+          lastReviewDate: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      };
+    }
+
     const cardData = await prisma.theoryCard.findUnique({
       where: { id },
-      include: {
-        progressEntries: {
-          where: { userId: userId || -1 },
-          select: { solvedCount: true },
-        },
-      },
+      include,
     });
 
     if (!cardData) {
       return res.status(404).json({ message: "Theory card not found" });
     }
 
-    const { progressEntries, ...restOfCardData } = cardData;
-    const card = {
-      ...restOfCardData,
-      currentUserSolvedCount:
-        progressEntries && progressEntries.length > 0
-          ? progressEntries[0].solvedCount
-          : 0,
+    const baseCard = {
+      id: cardData.id,
+      ankiGuid: cardData.ankiGuid,
+      cardType: cardData.cardType,
+      deck: cardData.deck,
+      category: cardData.category,
+      subCategory: cardData.subCategory,
+      questionBlock: cardData.questionBlock,
+      answerBlock: cardData.answerBlock,
+      tags: cardData.tags,
+      orderIndex: cardData.orderIndex,
+      createdAt: cardData.createdAt,
+      updatedAt: cardData.updatedAt,
     };
 
-    res.status(200).json(card);
+    // Добавляем прогресс только для авторизованных
+    if (isAuthenticated && "progressEntries" in cardData) {
+      res.status(200).json({
+        ...baseCard,
+        progressEntries: cardData.progressEntries,
+      });
+    } else {
+      res.status(200).json(baseCard);
+    }
   } catch (error) {
     console.error(`Error fetching theory card ${id}:`, error);
     res.status(500).json({ message: "Internal server error" });
@@ -420,6 +483,7 @@ router.get("/cards/:id", isAuthenticated, async (req, res) => {
  * /api/theory/cards/{cardId}/progress:
  *   patch:
  *     summary: Обновление прогресса пользователя по карточке
+ *     description: Увеличивает или уменьшает счетчик решений для карточки теории
  *     tags: [Theory Cards]
  *     security:
  *       - cookieAuth: []
@@ -435,16 +499,25 @@ router.get("/cards/:id", isAuthenticated, async (req, res) => {
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/ProgressUpdate'
+ *             $ref: '#/components/schemas/TheoryProgressUpdate'
+ *           examples:
+ *             increment:
+ *               summary: Увеличить счетчик
+ *               value:
+ *                 action: "increment"
+ *             decrement:
+ *               summary: Уменьшить счетчик
+ *               value:
+ *                 action: "decrement"
  *     responses:
  *       200:
- *         description: Обновленный прогресс
+ *         description: Прогресс успешно обновлен
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/ProgressResponse'
+ *               $ref: '#/components/schemas/TheoryProgress'
  *       400:
- *         description: Неверные параметры запроса
+ *         description: Некорректный запрос
  *         content:
  *           application/json:
  *             schema:
@@ -469,22 +542,34 @@ router.get("/cards/:id", isAuthenticated, async (req, res) => {
  *               $ref: '#/components/schemas/Error'
  */
 // PATCH /api/theory/cards/:cardId/progress - Обновление прогресса пользователя по карточке
-router.patch("/cards/:cardId/progress", isAuthenticated, async (req, res) => {
+router.patch("/cards/:cardId/progress", attachUserRole, async (req, res) => {
   const userId = req.session.userId;
   const { cardId } = req.params;
-  const { action } = req.body; // "increment" or "decrement"
+  const { action } = req.body; // "increment" или "decrement"
 
-  if (!userId) {
-    return res.status(401).json({ message: "User not authenticated" });
+  // Проверяем авторизацию для операций с прогрессом
+  if (req.userRole === "GUEST" || !userId) {
+    return res.status(401).json({
+      message: "Требуется авторизация для сохранения прогресса",
+    });
   }
 
-  if (action !== "increment" && action !== "decrement") {
+  if (!action || (action !== "increment" && action !== "decrement")) {
     return res.status(400).json({
-      message: "Invalid action. Must be 'increment' or 'decrement'.",
+      message: "Invalid action. Must be 'increment' or 'decrement'",
     });
   }
 
   try {
+    // Проверяем, существует ли карточка
+    const card = await prisma.theoryCard.findUnique({
+      where: { id: cardId },
+    });
+
+    if (!card) {
+      return res.status(404).json({ message: "Theory card not found" });
+    }
+
     let updatedProgress;
 
     if (action === "increment") {
@@ -535,9 +620,8 @@ router.patch("/cards/:cardId/progress", isAuthenticated, async (req, res) => {
  * /api/theory/categories:
  *   get:
  *     summary: Получение списка категорий и подкатегорий
+ *     description: Возвращает список всех категорий и подкатегорий карточек теории
  *     tags: [Theory Cards]
- *     security:
- *       - cookieAuth: []
  *     responses:
  *       200:
  *         description: Список категорий с подкатегориями
@@ -547,12 +631,6 @@ router.patch("/cards/:cardId/progress", isAuthenticated, async (req, res) => {
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/TheoryCategory'
- *       401:
- *         description: Не авторизован
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Внутренняя ошибка сервера
  *         content:
@@ -561,7 +639,7 @@ router.patch("/cards/:cardId/progress", isAuthenticated, async (req, res) => {
  *               $ref: '#/components/schemas/Error'
  */
 // GET /api/theory/categories - Получение списка категорий и подкатегорий
-router.get("/categories", isAuthenticated, async (req, res) => {
+router.get("/categories", attachUserRole, async (req, res) => {
   try {
     const categories = await prisma.theoryCard.groupBy({
       by: ["category", "subCategory"],
@@ -681,17 +759,19 @@ router.get("/categories", isAuthenticated, async (req, res) => {
  *               $ref: '#/components/schemas/Error'
  */
 // POST /api/theory/cards/:cardId/review - Повторение карточки с интервальным алгоритмом
-router.post("/cards/:cardId/review", isAuthenticated, async (req, res) => {
+router.post("/cards/:cardId/review", attachUserRole, async (req, res) => {
   const userId = req.session.userId;
   const { cardId } = req.params;
-  const { rating, responseTime } = req.body;
+  const { rating } = req.body; // "again", "hard", "good", "easy"
 
-  if (!userId) {
-    return res.status(401).json({ message: "User not authenticated" });
+  // Проверяем авторизацию для работы с прогрессом
+  if (req.userRole === "GUEST" || !userId) {
+    return res.status(401).json({
+      message: "Требуется авторизация для повторения карточек",
+    });
   }
 
-  // Валидация rating
-  const validRatings = ["again", "hard", "good", "easy"] as const;
+  const validRatings = ["again", "hard", "good", "easy"];
   if (!rating || !validRatings.includes(rating)) {
     return res.status(400).json({
       message: "Invalid rating. Must be one of: again, hard, good, easy",
@@ -699,26 +779,18 @@ router.post("/cards/:cardId/review", isAuthenticated, async (req, res) => {
   }
 
   try {
-    // Проверяем, существует ли карточка
-    const card = await prisma.theoryCard.findUnique({
-      where: { id: cardId },
-    });
-
-    if (!card) {
-      return res.status(404).json({ message: "Theory card not found" });
-    }
-
-    // Обрабатываем повторение
     const reviewResult = await spacedRepetitionService.reviewCard(
       userId,
       cardId,
-      rating,
-      responseTime
+      rating
     );
 
     res.status(200).json(reviewResult);
   } catch (error: any) {
     console.error(`Error reviewing card ${cardId} for user ${userId}:`, error);
+    if (error.message.includes("not found")) {
+      return res.status(404).json({ message: error.message });
+    }
     res.status(500).json({ message: "Failed to process card review" });
   }
 });
@@ -766,30 +838,66 @@ router.post("/cards/:cardId/review", isAuthenticated, async (req, res) => {
  *               $ref: '#/components/schemas/Error'
  */
 // GET /api/theory/cards/:cardId/stats - Получение статистики по карточке
-router.get("/cards/:cardId/stats", isAuthenticated, async (req, res) => {
+router.get("/cards/:cardId/stats", attachUserRole, async (req, res) => {
   const userId = req.session.userId;
   const { cardId } = req.params;
 
-  if (!userId) {
-    return res.status(401).json({ message: "User not authenticated" });
+  // Проверяем авторизацию для работы с прогрессом
+  if (req.userRole === "GUEST" || !userId) {
+    return res.status(401).json({
+      message: "Требуется авторизация для просмотра статистики",
+    });
   }
 
   try {
-    const stats = await spacedRepetitionService.getCardStats(userId, cardId);
+    // Проверяем, существует ли карточка
+    const card = await prisma.theoryCard.findUnique({
+      where: { id: cardId },
+    });
 
-    if (!stats) {
-      return res.status(404).json({
-        message: "Card stats not found. Card may not have been reviewed yet.",
+    if (!card) {
+      return res.status(404).json({ message: "Theory card not found" });
+    }
+
+    const progressEntry = await prisma.userTheoryProgress.findUnique({
+      where: { userId_cardId: { userId, cardId } },
+    });
+
+    if (!progressEntry) {
+      return res.status(200).json({
+        cardId,
+        userId,
+        solvedCount: 0,
+        easeFactor: 2.5,
+        interval: 1,
+        dueDate: null,
+        reviewCount: 0,
+        lapseCount: 0,
+        cardState: "NEW",
+        learningStep: 0,
+        lastReviewDate: null,
       });
     }
 
-    res.status(200).json(stats);
+    res.status(200).json({
+      cardId: progressEntry.cardId,
+      userId: progressEntry.userId,
+      solvedCount: progressEntry.solvedCount,
+      easeFactor: progressEntry.easeFactor,
+      interval: progressEntry.interval,
+      dueDate: progressEntry.dueDate,
+      reviewCount: progressEntry.reviewCount,
+      lapseCount: progressEntry.lapseCount,
+      cardState: progressEntry.cardState,
+      learningStep: progressEntry.learningStep,
+      lastReviewDate: progressEntry.lastReviewDate,
+    });
   } catch (error: any) {
     console.error(
       `Error fetching stats for card ${cardId} and user ${userId}:`,
       error
     );
-    res.status(500).json({ message: "Failed to fetch card stats" });
+    res.status(500).json({ message: "Failed to fetch card statistics" });
   }
 });
 
@@ -840,12 +948,15 @@ router.get("/cards/:cardId/stats", isAuthenticated, async (req, res) => {
  *               $ref: '#/components/schemas/Error'
  */
 // POST /api/theory/cards/:cardId/reset - Сброс прогресса карточки
-router.post("/cards/:cardId/reset", isAuthenticated, async (req, res) => {
+router.post("/cards/:cardId/reset", attachUserRole, async (req, res) => {
   const userId = req.session.userId;
   const { cardId } = req.params;
 
-  if (!userId) {
-    return res.status(401).json({ message: "User not authenticated" });
+  // Проверяем авторизацию для работы с прогрессом
+  if (req.userRole === "GUEST" || !userId) {
+    return res.status(401).json({
+      message: "Требуется авторизация для сброса прогресса",
+    });
   }
 
   try {
@@ -910,12 +1021,15 @@ router.post("/cards/:cardId/reset", isAuthenticated, async (req, res) => {
  *               $ref: '#/components/schemas/Error'
  */
 // GET /api/theory/cards/:cardId/intervals - Получение вариантов интервалов повторения
-router.get("/cards/:cardId/intervals", isAuthenticated, async (req, res) => {
+router.get("/cards/:cardId/intervals", attachUserRole, async (req, res) => {
   const userId = req.session.userId;
   const { cardId } = req.params;
 
-  if (!userId) {
-    return res.status(401).json({ message: "User not authenticated" });
+  // Проверяем авторизацию для работы с прогрессом
+  if (req.userRole === "GUEST" || !userId) {
+    return res.status(401).json({
+      message: "Требуется авторизация для получения интервалов повторения",
+    });
   }
 
   try {
@@ -986,11 +1100,14 @@ router.get("/cards/:cardId/intervals", isAuthenticated, async (req, res) => {
  *               $ref: '#/components/schemas/Error'
  */
 // GET /api/theory/stats - Получение общей статистики по карточкам
-router.get("/stats", isAuthenticated, async (req, res) => {
+router.get("/stats", attachUserRole, async (req, res) => {
   const userId = req.session.userId;
 
-  if (!userId) {
-    return res.status(401).json({ message: "User not authenticated" });
+  // Проверяем авторизацию для работы с прогрессом
+  if (req.userRole === "GUEST" || !userId) {
+    return res.status(401).json({
+      message: "Требуется авторизация для просмотра статистики",
+    });
   }
 
   try {

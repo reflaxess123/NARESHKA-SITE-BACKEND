@@ -14,6 +14,7 @@ model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   password  String
+  role      UserRole @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   progress  UserContentProgress[]
@@ -23,6 +24,12 @@ model User {
   createdRooms     ChatRoom[]        @relation("CreatedRooms")
   chatParticipants ChatParticipant[]
   sentMessages     ChatMessage[]     @relation("SentMessages")
+}
+
+enum UserRole {
+  GUEST
+  USER
+  ADMIN
 }
 
 // Модели для парсинга контента из WebDAV

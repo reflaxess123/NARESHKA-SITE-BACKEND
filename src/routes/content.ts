@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import express from "express";
-import { isAuthenticated } from "../middleware/authMiddleware";
+import { attachUserRole } from "../middleware/roleMiddleware";
 
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -10,10 +10,8 @@ const router = express.Router();
  * /api/content/blocks:
  *   get:
  *     summary: Получение списка блоков контента
- *     description: Возвращает список блоков контента с пагинацией, фильтрацией и поиском
+ *     description: Возвращает список блоков контента с пагинацией, фильтрацией и поиском. Для авторизованных пользователей включает прогресс.
  *     tags: [Content]
- *     security:
- *       - cookieAuth: []
  *     parameters:
  *       - in: query
  *         name: page
@@ -85,12 +83,6 @@ const router = express.Router();
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *       401:
- *         description: Пользователь не аутентифицирован
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Внутренняя ошибка сервера
  *         content:
@@ -99,8 +91,9 @@ const router = express.Router();
  *               $ref: '#/components/schemas/Error'
  */
 // GET /api/content/blocks - Получение списка блоков контента с пагинацией и фильтрацией
-router.get("/blocks", isAuthenticated, async (req, res) => {
-  const userId = req.session.userId; // Получаем ID текущего пользователя
+router.get("/blocks", attachUserRole, async (req, res) => {
+  const userId = req.session.userId; // Получаем ID текущего пользователя (может быть undefined)
+  const isAuthenticated = req.userRole !== "GUEST";
 
   const {
     page = "1",
@@ -198,62 +191,100 @@ router.get("/blocks", isAuthenticated, async (req, res) => {
   if (
     sortBy === "createdAt" ||
     sortBy === "updatedAt" ||
-    sortBy === "blockLevel" ||
-    sortBy === "orderInFile"
+    sortBy === "orderInFile" ||
+    sortBy === "blockLevel"
   ) {
     orderBy[sortBy as string] = sortOrder === "desc" ? "desc" : "asc";
-  } else if (
-    sortBy === "file.webdavPath" &&
-    Object.keys(fileFilter).length === 0
-  ) {
-    // Только если не фильтруем по файлу уже
+  } else if (sortBy === "file.webdavPath") {
     orderBy.file = { webdavPath: sortOrder === "desc" ? "desc" : "asc" };
   } else {
-    orderBy.orderInFile = "asc"; // По умолчанию, если sortBy некорректен
+    orderBy.orderInFile = "asc"; // Значение по умолчанию
   }
 
   try {
-    const blocksData = await prisma.contentBlock.findMany({
-      where,
-      skip: offset,
-      take: limitNum,
-      orderBy,
-      include: {
-        file: true, // Включаем данные связанного файла
-        progressEntries: {
-          where: { userId: userId || -1 }, // Фильтруем по текущему пользователю, -1 если юзер не залогинен
-          select: { solvedCount: true },
+    // Основная структура включения для запроса
+    const include: any = {
+      file: {
+        select: {
+          id: true,
+          webdavPath: true,
+          mainCategory: true,
+          subCategory: true,
         },
       },
-    });
+    };
 
-    const blocks = blocksData.map((block) => {
-      const { progressEntries, ...restOfBlock } = block;
-      return {
-        ...restOfBlock,
-        currentUserSolvedCount:
-          progressEntries && progressEntries.length > 0
-            ? progressEntries[0].solvedCount
-            : 0,
+    // Добавляем прогресс только для авторизованных пользователей
+    if (isAuthenticated && userId) {
+      include.progressEntries = {
+        where: { userId: userId },
+        select: {
+          id: true,
+          solvedCount: true,
+          createdAt: true,
+          updatedAt: true,
+        },
       };
+    }
+
+    const [blocks, totalCount] = await Promise.all([
+      prisma.contentBlock.findMany({
+        where,
+        include,
+        orderBy,
+        skip: offset,
+        take: limitNum,
+      }),
+      prisma.contentBlock.count({ where }),
+    ]);
+
+    const result = blocks.map((block) => {
+      const baseBlock = {
+        id: block.id,
+        fileId: block.fileId,
+        file: block.file,
+        pathTitles: block.pathTitles,
+        blockTitle: block.blockTitle,
+        blockLevel: block.blockLevel,
+        orderInFile: block.orderInFile,
+        textContent: block.textContent,
+        codeContent: block.codeContent,
+        codeLanguage: block.codeLanguage,
+        isCodeFoldable: block.isCodeFoldable,
+        codeFoldTitle: block.codeFoldTitle,
+        extractedUrls: block.extractedUrls,
+        rawBlockContentHash: block.rawBlockContentHash,
+        createdAt: block.createdAt,
+        updatedAt: block.updatedAt,
+      };
+
+      // Добавляем прогресс только для авторизованных
+      if (isAuthenticated && "progressEntries" in block) {
+        return {
+          ...baseBlock,
+          progressEntries: block.progressEntries,
+        };
+      }
+
+      return baseBlock;
     });
 
-    const totalBlocks = await prisma.contentBlock.count({
-      where,
-    });
+    const totalPages = Math.ceil(totalCount / limitNum);
 
     res.status(200).json({
-      data: blocks,
+      blocks: result,
       pagination: {
         page: pageNum,
         limit: limitNum,
-        totalItems: totalBlocks,
-        totalPages: Math.ceil(totalBlocks / limitNum),
+        total: totalCount,
+        totalPages,
+        hasNext: pageNum < totalPages,
+        hasPrev: pageNum > 1,
       },
     });
   } catch (error) {
     console.error("Error fetching content blocks:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ error: "Failed to fetch content blocks" });
   }
 });
 
@@ -262,10 +293,8 @@ router.get("/blocks", isAuthenticated, async (req, res) => {
  * /api/content/blocks/{id}:
  *   get:
  *     summary: Получение конкретного блока контента
- *     description: Возвращает детальную информацию о блоке контента по его ID
+ *     description: Возвращает детальную информацию о блоке контента по его ID. Для авторизованных пользователей включает прогресс.
  *     tags: [Content]
- *     security:
- *       - cookieAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -280,12 +309,6 @@ router.get("/blocks", isAuthenticated, async (req, res) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ContentBlock'
- *       401:
- *         description: Пользователь не аутентифицирован
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: Блок контента не найден
  *         content:
@@ -300,36 +323,74 @@ router.get("/blocks", isAuthenticated, async (req, res) => {
  *               $ref: '#/components/schemas/Error'
  */
 // GET /api/content/blocks/:id - Получение конкретного блока контента по ID
-router.get("/blocks/:id", isAuthenticated, async (req, res) => {
+router.get("/blocks/:id", attachUserRole, async (req, res) => {
   const { id } = req.params;
-  const userId = req.session.userId; // Получаем ID текущего пользователя
+  const userId = req.session.userId; // Получаем ID текущего пользователя (может быть undefined)
+  const isAuthenticated = req.userRole !== "GUEST";
 
   try {
-    const blockData = await prisma.contentBlock.findUnique({
-      where: { id },
-      include: {
-        file: true, // Включаем данные связанного файла
-        progressEntries: {
-          where: { userId: userId || -1 }, // Фильтруем по текущему пользователю
-          select: { solvedCount: true },
+    // Основная структура включения для запроса
+    const include: any = {
+      file: {
+        select: {
+          id: true,
+          webdavPath: true,
+          mainCategory: true,
+          subCategory: true,
         },
       },
+    };
+
+    // Добавляем прогресс только для авторизованных пользователей
+    if (isAuthenticated && userId) {
+      include.progressEntries = {
+        where: { userId: userId },
+        select: {
+          id: true,
+          solvedCount: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      };
+    }
+
+    const blockData = await prisma.contentBlock.findUnique({
+      where: { id },
+      include,
     });
 
     if (!blockData) {
       return res.status(404).json({ message: "Content block not found" });
     }
 
-    const { progressEntries, ...restOfBlockData } = blockData;
-    const block = {
-      ...restOfBlockData,
-      currentUserSolvedCount:
-        progressEntries && progressEntries.length > 0
-          ? progressEntries[0].solvedCount
-          : 0,
+    const baseBlock = {
+      id: blockData.id,
+      fileId: blockData.fileId,
+      file: blockData.file,
+      pathTitles: blockData.pathTitles,
+      blockTitle: blockData.blockTitle,
+      blockLevel: blockData.blockLevel,
+      orderInFile: blockData.orderInFile,
+      textContent: blockData.textContent,
+      codeContent: blockData.codeContent,
+      codeLanguage: blockData.codeLanguage,
+      isCodeFoldable: blockData.isCodeFoldable,
+      codeFoldTitle: blockData.codeFoldTitle,
+      extractedUrls: blockData.extractedUrls,
+      rawBlockContentHash: blockData.rawBlockContentHash,
+      createdAt: blockData.createdAt,
+      updatedAt: blockData.updatedAt,
     };
 
-    res.status(200).json(block);
+    // Добавляем прогресс только для авторизованных
+    if (isAuthenticated && "progressEntries" in blockData) {
+      res.status(200).json({
+        ...baseBlock,
+        progressEntries: blockData.progressEntries,
+      });
+    } else {
+      res.status(200).json(baseBlock);
+    }
   } catch (error) {
     console.error(`Error fetching content block ${id}:`, error);
     res.status(500).json({ message: "Internal server error" });
@@ -373,9 +434,9 @@ router.get("/blocks/:id", isAuthenticated, async (req, res) => {
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/ContentProgressResponse'
+ *               $ref: '#/components/schemas/ContentProgress'
  *       400:
- *         description: Неверное действие
+ *         description: Некорректный запрос
  *         content:
  *           application/json:
  *             schema:
@@ -393,75 +454,83 @@ router.get("/blocks/:id", isAuthenticated, async (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  *       500:
- *         description: Ошибка при обновлении прогресса
+ *         description: Внутренняя ошибка сервера
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
 // PATCH /api/content/blocks/:blockId/progress - Обновление прогресса пользователя по блоку
-router.patch("/blocks/:blockId/progress", isAuthenticated, async (req, res) => {
+router.patch("/blocks/:blockId/progress", attachUserRole, async (req, res) => {
   const userId = req.session.userId;
   const { blockId } = req.params;
-  const { action } = req.body; // "increment" or "decrement"
+  const { action } = req.body; // "increment" или "decrement"
 
-  if (!userId) {
-    // Это не должно произойти из-за isAuthenticated, но на всякий случай
-    return res.status(401).json({ message: "User not authenticated" });
+  // Проверяем авторизацию для операций с прогрессом
+  if (req.userRole === "GUEST" || !userId) {
+    return res.status(401).json({
+      message: "Требуется авторизация для сохранения прогресса",
+    });
   }
 
-  if (action !== "increment" && action !== "decrement") {
-    return res
-      .status(400)
-      .json({ message: "Invalid action. Must be 'increment' or 'decrement'." });
+  if (!action || (action !== "increment" && action !== "decrement")) {
+    return res.status(400).json({
+      message: "Invalid action. Must be 'increment' or 'decrement'",
+    });
   }
 
   try {
-    let updatedProgress;
+    // Проверяем, существует ли блок
+    const block = await prisma.contentBlock.findUnique({
+      where: { id: blockId },
+    });
 
-    if (action === "increment") {
-      updatedProgress = await prisma.userContentProgress.upsert({
-        where: { userId_blockId: { userId, blockId } },
-        create: { userId, blockId, solvedCount: 1 },
-        update: { solvedCount: { increment: 1 } },
-        select: { userId: true, blockId: true, solvedCount: true },
-      });
+    if (!block) {
+      return res.status(404).json({ message: "Content block not found" });
+    }
+
+    // Ищем существующую запись прогресса или создаем новую
+    const existingProgress = await prisma.userContentProgress.findUnique({
+      where: {
+        userId_blockId: { userId, blockId },
+      },
+    });
+
+    let newSolvedCount = 0;
+    if (existingProgress) {
+      if (action === "increment") {
+        newSolvedCount = existingProgress.solvedCount + 1;
+      } else if (action === "decrement") {
+        newSolvedCount = Math.max(0, existingProgress.solvedCount - 1);
+      }
     } else {
-      // action === "decrement"
-      // Сначала пытаемся уменьшить, если solvedCount > 0
-      await prisma.userContentProgress.updateMany({
-        where: {
-          userId: userId,
-          blockId: blockId,
-          solvedCount: { gt: 0 },
-        },
-        data: {
-          solvedCount: { decrement: 1 },
-        },
-      });
+      newSolvedCount = action === "increment" ? 1 : 0;
+    }
 
-      // Затем получаем или создаем (с solvedCount: 0) запись, чтобы вернуть актуальное состояние
-      updatedProgress = await prisma.userContentProgress.upsert({
-        where: { userId_blockId: { userId, blockId } },
-        create: { userId, blockId, solvedCount: 0 }, // Если не существовала, создаем с 0
-        update: {}, // Если существовала, updateMany уже сделал работу или solvedCount был 0
-        select: { userId: true, blockId: true, solvedCount: true },
-      });
-    }
-    res.status(200).json(updatedProgress);
-  } catch (error: any) {
-    console.error(
-      `Error updating progress for block ${blockId} and user ${userId}:`,
-      error
-    );
-    // Проверка на Prisma specific errors, если нужно (например, если blockId не существует)
-    if (error && error.code === "P2025") {
-      return res.status(404).json({
-        message:
-          "Content block not found or user progress record inconsistency.",
-      });
-    }
-    res.status(500).json({ message: "Failed to update content progress" });
+    // Используем upsert для создания или обновления записи
+    const updatedProgress = await prisma.userContentProgress.upsert({
+      where: {
+        userId_blockId: { userId, blockId },
+      },
+      update: {
+        solvedCount: newSolvedCount,
+      },
+      create: {
+        userId,
+        blockId,
+        solvedCount: newSolvedCount,
+      },
+    });
+
+    res.status(200).json({
+      userId: updatedProgress.userId,
+      blockId: updatedProgress.blockId,
+      solvedCount: updatedProgress.solvedCount,
+      updatedAt: updatedProgress.updatedAt,
+    });
+  } catch (error) {
+    console.error(`Error updating progress for block ${blockId}:`, error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
