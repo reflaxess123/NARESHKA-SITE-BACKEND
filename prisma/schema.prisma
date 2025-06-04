@@ -19,11 +19,6 @@ model User {
   updatedAt DateTime @updatedAt
   progress  UserContentProgress[]
   theoryProgress UserTheoryProgress[]
-  
-  // Связи для чата
-  createdRooms     ChatRoom[]        @relation("CreatedRooms")
-  chatParticipants ChatParticipant[]
-  sentMessages     ChatMessage[]     @relation("SentMessages")
 }
 
 enum UserRole {
@@ -141,76 +136,4 @@ enum CardState {
   LEARNING
   REVIEW
   RELEARNING
-}
-
-// Модели для чата
-model ChatRoom {
-  id          String             @id @default(cuid())
-  name        String?            // Название комнаты (для групповых чатов)
-  type        ChatRoomType       @default(PRIVATE)
-  isActive    Boolean            @default(true)
-  createdBy   Int
-  creator     User               @relation("CreatedRooms", fields: [createdBy], references: [id])
-  
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
-  
-  participants ChatParticipant[]
-  messages     ChatMessage[]
-  
-  @@index([type])
-  @@index([createdBy])
-}
-
-model ChatParticipant {
-  id           String    @id @default(cuid())
-  roomId       String
-  userId       Int
-  joinedAt     DateTime  @default(now())
-  lastReadAt   DateTime? // Для отметки прочитанных сообщений
-  isActive     Boolean   @default(true)
-  
-  room         ChatRoom  @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@unique([roomId, userId])
-  @@index([userId])
-  @@index([roomId])
-}
-
-model ChatMessage {
-  id          String      @id @default(cuid())
-  roomId      String
-  senderId    Int
-  content     String
-  messageType MessageType @default(TEXT)
-  isEdited    Boolean     @default(false)
-  isDeleted   Boolean     @default(false)
-  
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  
-  room        ChatRoom    @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  sender      User        @relation("SentMessages", fields: [senderId], references: [id])
-  
-  // Для ответов на сообщения
-  replyToId   String?
-  replyTo     ChatMessage? @relation("MessageReplies", fields: [replyToId], references: [id])
-  replies     ChatMessage[] @relation("MessageReplies")
-  
-  @@index([roomId])
-  @@index([senderId])
-  @@index([createdAt])
-}
-
-enum ChatRoomType {
-  PRIVATE   // Приватный чат между двумя пользователями
-  GROUP     // Групповой чат
-}
-
-enum MessageType {
-  TEXT
-  IMAGE
-  FILE
-  SYSTEM    // Системные сообщения (пользователь присоединился и т.д.)
 } 

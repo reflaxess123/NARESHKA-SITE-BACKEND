@@ -10,7 +10,7 @@ const prisma = new PrismaClient();
  * @swagger
  * /api/admin/stats:
  *   get:
- *     summary: Получить общую статистику для админки
+ *     summary: Получить общую статистику системы
  *     tags: [Admin]
  *     security:
  *       - cookieAuth: []
@@ -41,13 +41,6 @@ const prisma = new PrismaClient();
  *                     totalBlocks:
  *                       type: integer
  *                     totalTheoryCards:
- *                       type: integer
- *                 chat:
- *                   type: object
- *                   properties:
- *                     totalRooms:
- *                       type: integer
- *                     totalMessages:
  *                       type: integer
  *                 progress:
  *                   type: object
@@ -84,12 +77,6 @@ router.get("/stats", requireAdmin, async (req, res) => {
       prisma.theoryCard.count(),
     ]);
 
-    // Статистика чата
-    const [totalRooms, totalMessages] = await Promise.all([
-      prisma.chatRoom.count(),
-      prisma.chatMessage.count(),
-    ]);
-
     // Статистика прогресса
     const [totalContentProgress, totalTheoryProgress] = await Promise.all([
       prisma.userContentProgress.count(),
@@ -107,10 +94,6 @@ router.get("/stats", requireAdmin, async (req, res) => {
         totalFiles,
         totalBlocks,
         totalTheoryCards,
-      },
-      chat: {
-        totalRooms,
-        totalMessages,
       },
       progress: {
         totalContentProgress,
@@ -190,7 +173,6 @@ router.get("/users", requireAdmin, async (req, res) => {
             select: {
               progress: true,
               theoryProgress: true,
-              sentMessages: true,
             },
           },
         },
