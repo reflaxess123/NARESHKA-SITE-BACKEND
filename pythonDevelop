@@ -1,0 +1,253 @@
+Этот промпт предназначен для переписывания существующего Express.js бэкенда на Python с использованием FastAPI, SQLModel и уже существующей базы данных PostgreSQL.
+
+---
+
+## 📄 **Промпт для переписывания бэкенда на Python (FastAPI + SQLModel)**
+
+### **Цель проекта:**
+Переписать существующий Express.js бэкенд на Python, используя FastAPI в качестве основного фреймворка, SQLModel для работы с базой данных PostgreSQL, и `fastapi-users` для аутентификации на основе сессий (куки). Проект должен быть адаптирован для работы с уже существующей схемой PostgreSQL.
+
+### **Обновлённый стек технологий:**
+*   **API-фреймворк:** FastAPI
+*   **ORM:** SQLModel (приоритет), с возможностью использования SQLAlchemy 2.0 для сложных случаев.
+*   **Авторизация (сессии):** `fastapi-users[sqlalchemy2]` с `CookieTransport`.
+*   **Подключение к существующей БД:** Через SQLAlchemy с использованием `DATABASE_URL` из `.env`.
+*   **Миграции:** Alembic (только для будущих изменений, без автоматического создания таблиц).
+*   **.env-конфигурация:** `python-dotenv`.
+*   **Тестирование:** `pytest`, `httpx`.
+
+### **💡 Ключевые моменты и инструкции:**
+
+1.  **🔌 Подключение к существующей БД:**
+    *   Используй переменную окружения `DATABASE_URL` из `.env` для создания движка SQLAlchemy.
+    *   **Важно:** В `database.py` **НЕ** вызывай `SQLModel.metadata.create_all(engine)`, так как таблицы уже существуют в PostgreSQL.
+
+    ```python
+    # app/database.py
+    import os
+    from sqlmodel import create_engine
+
+    DATABASE_URL = os.getenv("DATABASE_URL")
+    engine = create_engine(DATABASE_URL, echo=True)
+
+    def get_session():
+        with Session(engine) as session:
+            yield session
+    ```
+
+2.  **📋 Синхронизация с существующей схемой БД (на основе `prisma/schema.prisma`):**
+    *   Используй `sqlacodegen` для автоматической генерации SQLAlchemy-моделей из существующей PostgreSQL базы данных. Это поможет создать базовый скелет моделей.
+        ```bash
+        pip install sqlacodegen psycopg2-binary # или psycopg[binary]
+        sqlacodegen postgresql://user:pass@host:port/dbname --sqlalchemy --outfile models_generated.py
+        ```
+    *   **Вручную адаптируй сгенерированные модели в `app/models.py` под SQLModel**, сохраняя соответствие полей и типов данных. Учти следующие модели из `prisma/schema.prisma`:
+
+        ```
+        // Модели из schema.prisma для адаптации:
+        model User {
+          id        Int
+          email     String
+          password  String
+          role      UserRole
+          createdAt DateTime
+          updatedAt DateTime
+          progress  UserContentProgress[]
+          theoryProgress UserTheoryProgress[]
+        }
+
+        enum UserRole {
+          GUEST
+          USER
+          ADMIN
+        }
+
+        model ContentFile {
+          id              String
+          webdavPath      String
+          mainCategory    String
+          subCategory     String
+          lastFileHash    String?
+          createdAt       DateTime
+          updatedAt       DateTime
+          blocks          ContentBlock[]
+        }
+
+        model ContentBlock {
+          id                  String
+          fileId              String
+          file                ContentFile
+          pathTitles          Json
+          blockTitle          String
+          blockLevel          Int
+          orderInFile         Int
+          textContent         String?
+          codeContent         String?
+          codeLanguage        String?
+          isCodeFoldable      Boolean
+          codeFoldTitle       String?
+          extractedUrls       String[]
+          rawBlockContentHash String?
+          createdAt           DateTime
+          updatedAt           DateTime
+          progressEntries     UserContentProgress[]
+        }
+
+        model UserContentProgress {
+          id           String
+          userId       Int
+          blockId      String
+          solvedCount  Int
+          user         User
+          block        ContentBlock
+          createdAt    DateTime
+          updatedAt    DateTime
+        }
+
+        model TheoryCard {
+          id              String
+          ankiGuid        String
+          cardType        String
+          deck            String
+          category        String
+          subCategory     String?
+          questionBlock   String
+          answerBlock     String
+          tags            String[]
+          orderIndex      Int
+          createdAt       DateTime
+          updatedAt       DateTime
+          progressEntries UserTheoryProgress[]
+        }
+
+        model UserTheoryProgress {
+          id           String
+          userId       Int
+          cardId       String
+          solvedCount  Int
+          easeFactor   Decimal
+          interval     Int
+          dueDate      DateTime?
+          reviewCount  Int
+          lapseCount   Int
+          cardState    CardState
+          learningStep Int
+          lastReviewDate DateTime?
+          user         User
+          card         TheoryCard
+          createdAt    DateTime
+          updatedAt    DateTime
+        }
+
+        enum CardState {
+          NEW
+          LEARNING
+          REVIEW
+          RELEARNING
+        }
+        ```
+    *   Обрати внимание на типы полей (например, `Json`, `String[]` в Prisma) и их соответствие в SQLModel (`dict`, `list[str]` или `ARRAY` из SQLAlchemy). Для `Json` в Prisma, скорее всего, потребуется использовать `JSON` тип из SQLAlchemy.
+    *   Убедись, что внешние ключи и связи `@@relation` также корректно описаны в SQLModel.
+
+3.  **🔐 Сессионная авторизация с `fastapi-users`:**
+    *   Используй `fastapi-users` с `CookieTransport` для реализации аутентификации на основе куки.
+    *   Создай файл `app/auth.py` для настройки `fastapi-users`.
+    *   Реализуй `get_user_db` и `get_strategy` для работы с SQLModel.
+    *   Пример структуры:
+
+    ```python
+    # app/auth.py
+    from fastapi_users import FastAPIUsers
+    from fastapi_users.authentication import AuthenticationBackend, CookieTransport, Strategy
+    from sqlmodel import Session
+    from typing import AsyncGenerator
+
+    from app.database import engine # Предполагается, что engine уже определен
+    from app.models import User # Предполагается, что модель User определена
+
+    SECRET_KEY = os.getenv("SECRET_KEY") # Получи SECRET_KEY из .env
+
+    class DatabaseStrategy(Strategy[User, str]):
+        async def write_token(self, user: User) -> str:
+            # Логика сохранения сессии и генерации токена (куки)
+            pass
+
+        async def read_token(self, token: str | None) -> User | None:
+            # Логика чтения токена (куки) и получения пользователя
+            pass
+
+    cookie_transport = CookieTransport(cookie_name="session", max_age=3600)
+
+    def get_database_strategy() -> DatabaseStrategy:
+        return DatabaseStrategy(lifetime_seconds=3600) # или другая продолжительность
+
+    auth_backend = AuthenticationBackend(
+        name="cookie",
+        transport=cookie_transport,
+        get_strategy=get_database_strategy,
+    )
+
+    async def get_user_db(session: Session = Depends(get_session)): # Предполагается get_session из database.py
+        # Ваша реализация UserDatabase
+        pass
+
+    fastapi_users = FastAPIUsers[User, str](
+        get_user_db,
+        [auth_backend],
+    )
+
+    current_active_user = fastapi_users.current_user(active=True)
+    ```
+
+4.  **🧪 Миграции (Alembic):**
+    *   Alembic можно использовать для будущих миграций, если потребуется изменять схему БД.
+    *   Настрой `alembic.ini` с `sqlalchemy.url` из `.env` и `version_locations = versions/`.
+    *   При использовании `autogenerate` с Alembic и SQLModel, всегда **вручную проверяй сгенерированный `diff`**, чтобы избежать случайного изменения существующей схемы.
+
+5.  **📁 Структура проекта (рекомендуемая):**
+
+    ```
+    your_project/
+    ├── app/
+    │   ├── main.py            # Основное приложение FastAPI и роутинг
+    │   ├── models.py          # SQLModel-модели, адаптированные под существующую БД
+    │   ├── database.py        # engine, session, зависимость get_session
+    │   ├── auth.py            # Настройка fastapi-users, аутентификации
+    │   ├── routers/           # Каталог для роутеров (e.g., users.py, content.py, theory.py)
+    │   │   ├── __init__.py
+    │   │   ├── users.py       # Роуты для пользователей (регистрация, логин)
+    │   │   ├── content.py     # Роуты для ContentFile, ContentBlock, UserContentProgress
+    │   │   └── theory.py      # Роуты для TheoryCard, UserTheoryProgress
+    │   └── schemas/           # Pydantic/SQLModel схемы для входных/выходных данных (DTOs)
+    ├── .env                   # Переменные окружения (DATABASE_URL, SECRET_KEY)
+    ├── requirements.txt       # Зависимости проекта
+    ├── alembic.ini            # Конфигурация Alembic (если используется)
+    ├── versions/              # Каталог для Alembic миграций (если используется)
+    └── tests/                 # Каталог для тестов
+        ├── __init__.py
+        └── test_main.py
+    ```
+
+6.  **🚀 Как начать:**
+    *   Создай файл `.env` в корне проекта со следующими переменными:
+        ```dotenv
+        DATABASE_URL=postgresql://user:pass@host:port/dbname
+        SECRET_KEY=your-secret-key-very-long-and-random # Сгенерируй длинный случайный ключ
+        ```
+    *   Установи зависимости:
+        ```bash
+        pip install fastapi sqlmodel "fastapi-users[sqlalchemy2]" uvicorn python-dotenv "psycopg[binary]" sqlacodegen
+        ```
+    *   Начни с определения моделей в `app/models.py` на основе вашей `schema.prisma`.
+    *   Реализуй подключение к БД в `app/database.py`.
+    *   Настрой `fastapi-users` в `app/auth.py`.
+    *   Создай базовый `main.py` и подключи роутеры.
+    *   Проверь `/docs` (Swagger UI) после запуска, чтобы убедиться, что эндпоинты работают корректно.
+
+---
+
+### **Дальнейшие шаги (После создания промпта):**
+
+*   **Генерация минимального шаблона проекта:** Создать структуру каталогов и основные пустые файлы (`main.py`, `models.py`, `database.py`, `auth.py`, `requirements.txt`).
+*   **Сборка `requirements.txt`:** Автоматически сгенерировать файл со всеми необходимыми зависимостями.
+*   **Пример `fastapi-users`:** Добавить базовый пример реализации регистрации, логина и логаута с использованием `fastapi-users`. 
