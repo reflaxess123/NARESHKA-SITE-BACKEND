@@ -66,16 +66,32 @@ export async function updateContentFromWebDAV(
 
     // Шаг 1: Получение списка всех .md файлов из WebDAV
     console.log("Fetching file list from WebDAV...");
-    const allItemsFromWebDAV = (await webDAVClient.getDirectoryContents(
+    const webdavResponse = await webDAVClient.getDirectoryContents(
       baseDirectoryPath,
       { deep: true, details: true }
-    )) as WebDAVFile[]; // Expecting FileStat[] directly
+    );
 
-    // Проверяем, что allItemsFromWebDAV является массивом
-    if (!Array.isArray(allItemsFromWebDAV)) {
+    console.log("WebDAV response type:", typeof webdavResponse);
+    console.log("WebDAV response:", webdavResponse);
+
+    // Проверяем структуру ответа WebDAV
+    let allItemsFromWebDAV: WebDAVFile[];
+
+    if (Array.isArray(webdavResponse)) {
+      // Если ответ уже является массивом
+      allItemsFromWebDAV = webdavResponse as WebDAVFile[];
+    } else if (
+      webdavResponse &&
+      typeof webdavResponse === "object" &&
+      "data" in webdavResponse &&
+      Array.isArray((webdavResponse as any).data)
+    ) {
+      // Если ответ содержит поле data с массивом
+      allItemsFromWebDAV = (webdavResponse as any).data as WebDAVFile[];
+    } else {
       const errorMsg =
-        "Unexpected response structure from WebDAV: getDirectoryContents did not return an array.";
-      console.error(errorMsg, allItemsFromWebDAV);
+        "Unexpected response structure from WebDAV: getDirectoryContents did not return an array or object with data array.";
+      console.error(errorMsg, webdavResponse);
       summary.status = `Failed: ${errorMsg}`;
       summary.errors.push({ filePath: "GENERAL", error: errorMsg });
       return summary;
